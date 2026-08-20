@@ -1,6 +1,6 @@
 import unittest
 
-from open_jarvis.integrations.url_safety import normalize_web_url
+from ultron.integrations.url_safety import normalize_web_url
 
 
 class StrictUrlSafetyTests(unittest.TestCase):

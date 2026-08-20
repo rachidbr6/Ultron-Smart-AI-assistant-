@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from open_jarvis.plugins.permissions import (
+from ultron.plugins.permissions import (
     highest_permission_risk,
     list_plugin_permissions,
     permission_risk,

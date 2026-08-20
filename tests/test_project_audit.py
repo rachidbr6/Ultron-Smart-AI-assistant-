@@ -1,6 +1,6 @@
 import unittest
 
-from open_jarvis.release.project_audit import analyze_project
+from ultron.release.project_audit import analyze_project
 
 
 class ProjectAuditTests(unittest.TestCase):
@@ -32,7 +32,7 @@ class ProjectAuditTests(unittest.TestCase):
             (root / "__pycache__").mkdir()
             (root / "__pycache__" / "app.py").write_text("cached\n", encoding="utf-8")
 
-            from open_jarvis.release.project_audit import read_project_files
+            from ultron.release.project_audit import read_project_files
 
             files = read_project_files(root)
 
@@ -55,8 +55,8 @@ class ProjectAuditTests(unittest.TestCase):
 
     def test_audit_does_not_count_central_process_wrapper_as_unsafe_call_site(self):
         files = {
-            "open_jarvis/runtime/process_runner.py": "import subprocess\nsubprocess.run(['x'], shell=False)\n",
-            "open_jarvis/release/project_audit.py": '"subprocess.run("\n',
+            "ultron/runtime/process_runner.py": "import subprocess\nsubprocess.run(['x'], shell=False)\n",
+            "ultron/release/project_audit.py": '"subprocess.run("\n',
         }
 
         report = analyze_project(files)

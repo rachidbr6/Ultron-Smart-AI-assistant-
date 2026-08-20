@@ -5,8 +5,8 @@ import tempfile
 from pathlib import Path
 from unittest import TestCase
 
-from open_jarvis.release.artifact_verifier import verify_release_artifact
-from open_jarvis.release.windows_portable import assemble_portable_package, build_windows_portable_plan, run_windows_portable_build
+from ultron.release.artifact_verifier import verify_release_artifact
+from ultron.release.windows_portable import assemble_portable_package, build_windows_portable_plan, run_windows_portable_build
 
 
 class BuildScriptDryRunTest(TestCase):

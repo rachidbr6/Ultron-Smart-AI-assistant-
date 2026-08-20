@@ -2,9 +2,9 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from open_jarvis.config.manager import ConfigManager
-from open_jarvis.config.paths import ConfigPaths
-from open_jarvis.providers import GroqProvider, LocalProvider, ProviderRequest, ProviderResponse, ProviderRouter
+from ultron.config.manager import ConfigManager
+from ultron.config.paths import ConfigPaths
+from ultron.providers import GroqProvider, LocalProvider, ProviderRequest, ProviderResponse, ProviderRouter
 
 
 class DummyChat:

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from open_jarvis.audio.wake_word import (
+from ultron.audio.wake_word import (
     WakeWordDetector,
     build_wake_word_config,
     fuzzy_wake_word_score,

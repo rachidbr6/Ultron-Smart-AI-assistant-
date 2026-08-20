@@ -2,7 +2,7 @@ import sys
 
 sys.dont_write_bytecode = True
 
-from open_jarvis.ui.arayuz import JarvisApp, main  # noqa: E402
+from ultron.ui.arayuz import JarvisApp, main  # noqa: E402
 
 __all__ = ["JarvisApp", "main"]
 

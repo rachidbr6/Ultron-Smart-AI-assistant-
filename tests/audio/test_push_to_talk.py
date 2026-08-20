@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from open_jarvis.audio.push_to_talk import PushToTalkController
+from ultron.audio.push_to_talk import PushToTalkController
 
 
 class PushToTalkTest(TestCase):

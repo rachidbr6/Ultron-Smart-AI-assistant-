@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from open_jarvis.audio.microphone import build_microphone_status, build_voice_calibration_status, microphone_available
+from ultron.audio.microphone import build_microphone_status, build_voice_calibration_status, microphone_available
 
 
 class MicrophoneDegradedTest(TestCase):

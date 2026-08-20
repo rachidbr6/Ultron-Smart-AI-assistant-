@@ -3,8 +3,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from open_jarvis.plugins.loader import dispatch_plugin_command, load_enabled_plugins, shutdown_plugins
-from open_jarvis.plugins.registry import build_plugin_registry
+from ultron.plugins.loader import dispatch_plugin_command, load_enabled_plugins, shutdown_plugins
+from ultron.plugins.registry import build_plugin_registry
 
 
 class PluginLifecycleTest(TestCase):

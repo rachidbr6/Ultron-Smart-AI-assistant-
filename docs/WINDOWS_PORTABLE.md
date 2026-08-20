@@ -1,6 +1,6 @@
 # Windows Portable Package
 
-Open.Jarvis v0.5.0 prepares a portable ZIP workflow for Windows. The portable package is additive: source installation with `python arayuz.py`, `python jarvis.py`, and `python -m open_jarvis.app.main` remains supported.
+Open.Jarvis v0.5.0 prepares a portable ZIP workflow for Windows. The portable package is additive: source installation with `python arayuz.py`, `python jarvis.py`, and `python -m ultron.app.main` remains supported.
 
 ## What The Portable Package Contains
 

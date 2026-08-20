@@ -2,11 +2,11 @@
 
 from unittest import TestCase
 
-from open_jarvis.memory.privacy_mode import build_privacy_session, mask_sensitive_text, mask_sensitive_value
-from open_jarvis.memory.user_profiles import build_user_profile, merge_user_profile
-from open_jarvis.plugins.permission_profiles import action_allowed, build_permission_matrix, get_active_permission_profile
-from open_jarvis.ui.memory_panel import build_memory_panel, delete_note, update_preference
-from open_jarvis.ui.security_center import build_security_overview
+from ultron.memory.privacy_mode import build_privacy_session, mask_sensitive_text, mask_sensitive_value
+from ultron.memory.user_profiles import build_user_profile, merge_user_profile
+from ultron.plugins.permission_profiles import action_allowed, build_permission_matrix, get_active_permission_profile
+from ultron.ui.memory_panel import build_memory_panel, delete_note, update_preference
+from ultron.ui.security_center import build_security_overview
 
 
 class ProductSecurityMemoryTest(TestCase):

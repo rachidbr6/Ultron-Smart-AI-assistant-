@@ -14,7 +14,7 @@ os.environ["JARVIS_VOICE_ENABLED"] = "false"
 os.environ["JARVIS_ENERGY_THRESHOLD"] = "300"
 
 # Import and run Jarvis
-from open_jarvis.app.main import main
+from ultron.app.main import main
 
 if __name__ == "__main__":
     print("🚀 Launching Jarvis in LIGHTWEIGHT mode (text-only)")

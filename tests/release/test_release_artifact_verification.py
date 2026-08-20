@@ -3,7 +3,7 @@ import zipfile
 from pathlib import Path
 from unittest import TestCase
 
-from open_jarvis.release.artifact_verifier import verify_release_artifact
+from ultron.release.artifact_verifier import verify_release_artifact
 
 
 def _write_valid_package(root: Path) -> Path:

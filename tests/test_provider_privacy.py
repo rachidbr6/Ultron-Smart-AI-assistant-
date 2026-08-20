@@ -3,10 +3,10 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from open_jarvis.config.manager import ConfigManager
-from open_jarvis.config.paths import ConfigPaths
-from open_jarvis.memory.controls import MemoryControlService
-from open_jarvis.providers import GroqProvider, ProviderRouter
+from ultron.config.manager import ConfigManager
+from ultron.config.paths import ConfigPaths
+from ultron.memory.controls import MemoryControlService
+from ultron.providers import GroqProvider, ProviderRouter
 
 
 class CapturingChat:

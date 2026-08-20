@@ -1,9 +1,9 @@
 from pathlib import Path
 from unittest import TestCase
 
-from open_jarvis.plugins.context import build_plugin_context
-from open_jarvis.plugins.errors import PluginPermissionError
-from open_jarvis.plugins.manifest import validate_plugin_manifest_schema
+from ultron.plugins.context import build_plugin_context
+from ultron.plugins.errors import PluginPermissionError
+from ultron.plugins.manifest import validate_plugin_manifest_schema
 
 
 class PluginSecurityBoundariesTest(TestCase):

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from open_jarvis.evaluation import haftalik_guncelleme
+from ultron.evaluation import haftalik_guncelleme
 
 
 class WeeklyUpdateSafetyTests(unittest.TestCase):

@@ -2,9 +2,9 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from open_jarvis.config.manager import ConfigManager
-from open_jarvis.config.paths import ConfigPaths
-from open_jarvis.release.portable_policy import is_denied_portable_path
+from ultron.config.manager import ConfigManager
+from ultron.config.paths import ConfigPaths
+from ultron.release.portable_policy import is_denied_portable_path
 
 
 class PortableConfigTests(unittest.TestCase):

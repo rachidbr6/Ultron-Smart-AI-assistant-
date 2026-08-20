@@ -1,6 +1,6 @@
 import unittest
 
-from open_jarvis.config.sensitive import build_sensitive_status, is_sensitive_key, mask_sensitive_setting, reject_sensitive_payload
+from ultron.config.sensitive import build_sensitive_status, is_sensitive_key, mask_sensitive_setting, reject_sensitive_payload
 
 
 class SensitivePolicyTests(unittest.TestCase):

@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from open_jarvis.security.path_safety import is_private_runtime_path, validate_path_within_root
+from ultron.security.path_safety import is_private_runtime_path, validate_path_within_root
 
 
 class PathSafetyTests(unittest.TestCase):

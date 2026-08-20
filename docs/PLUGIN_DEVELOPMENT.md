@@ -27,7 +27,7 @@ New v0.3.0 manifests should include:
   "entrypoint": "main.py",
   "permissions": ["commands.register", "ui.notify"],
   "requires": {
-    "open_jarvis": ">=0.3.0"
+    "ultron": ">=0.3.0"
   },
   "enabled_by_default": false,
   "signer": "ci",

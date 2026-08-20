@@ -1,14 +1,14 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from open_jarvis.runtime import command_listener, readiness
+from ultron.runtime import command_listener, readiness
 
 
 class RuntimeFallbackTests(unittest.TestCase):
     def test_command_listener_reports_missing_microphone_without_raising(self):
         logs = []
 
-        with patch("open_jarvis.runtime.command_listener.sr.Microphone", side_effect=OSError("no input device")):
+        with patch("ultron.runtime.command_listener.sr.Microphone", side_effect=OSError("no input device")):
             result = command_listener.listen_for_command(logger=Mock(), send_log=logs.append, speak=Mock())
 
         self.assertEqual(result, "")
@@ -48,7 +48,7 @@ class RuntimeFallbackTests(unittest.TestCase):
             "JARVIS_ENABLE_SPOTIFY": "false",
         }
 
-        with patch("open_jarvis.runtime.readiness.resolved_env", return_value=resolved):
+        with patch("ultron.runtime.readiness.resolved_env", return_value=resolved):
             report = readiness.emit_startup_readiness(
                 send_log=logs.append,
                 microphone_probe=lambda: True,

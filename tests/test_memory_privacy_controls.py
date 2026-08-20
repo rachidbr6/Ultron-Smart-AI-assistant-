@@ -4,16 +4,16 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
-from open_jarvis.commands import groq_router
-from open_jarvis.config.manager import ConfigManager
-from open_jarvis.config.paths import ConfigPaths
-from open_jarvis.memory import build_context_prompt
-from open_jarvis.memory.controls import MemoryControlService
-from open_jarvis.memory.memory_habits import get_top_habits
-from open_jarvis.memory.memory_notes import add_note, get_notes
-from open_jarvis.memory.memory_preferences import get_preference
-from open_jarvis.memory.privacy_mode import memory_reads_enabled, memory_writes_enabled
-from open_jarvis.ui.memory_panel import MemoryPanelModel
+from ultron.commands import groq_router
+from ultron.config.manager import ConfigManager
+from ultron.config.paths import ConfigPaths
+from ultron.memory import build_context_prompt
+from ultron.memory.controls import MemoryControlService
+from ultron.memory.memory_habits import get_top_habits
+from ultron.memory.memory_notes import add_note, get_notes
+from ultron.memory.memory_preferences import get_preference
+from ultron.memory.privacy_mode import memory_reads_enabled, memory_writes_enabled
+from ultron.ui.memory_panel import MemoryPanelModel
 
 
 class MemoryPrivacyControlsTests(unittest.TestCase):
@@ -31,8 +31,8 @@ class MemoryPrivacyControlsTests(unittest.TestCase):
 
             self.assertFalse(memory_writes_enabled(manager))
             with (
-                patch("open_jarvis.memory.memory_notes.load_memory", return_value=memory) as load_memory,
-                patch("open_jarvis.memory.memory_notes.save_memory") as save_memory,
+                patch("ultron.memory.memory_notes.load_memory", return_value=memory) as load_memory,
+                patch("ultron.memory.memory_notes.save_memory") as save_memory,
             ):
                 add_note("private note", config_manager=manager)
 
@@ -46,10 +46,10 @@ class MemoryPrivacyControlsTests(unittest.TestCase):
 
             self.assertFalse(memory_reads_enabled(manager))
             with (
-                patch("open_jarvis.memory.load_memory") as context_memory,
-                patch("open_jarvis.memory.memory_habits.load_memory") as habits_memory,
-                patch("open_jarvis.memory.memory_preferences.load_memory") as preference_memory,
-                patch("open_jarvis.memory.memory_notes.load_memory") as notes_memory,
+                patch("ultron.memory.load_memory") as context_memory,
+                patch("ultron.memory.memory_habits.load_memory") as habits_memory,
+                patch("ultron.memory.memory_preferences.load_memory") as preference_memory,
+                patch("ultron.memory.memory_notes.load_memory") as notes_memory,
             ):
                 self.assertEqual(build_context_prompt(config_manager=manager), "")
                 self.assertEqual(get_top_habits(config_manager=manager), [])
@@ -93,8 +93,8 @@ class MemoryPrivacyControlsTests(unittest.TestCase):
         memory = {"preferences": {"favorite_app": "private browser"}, "habits": {"private command": 9}, "notes": []}
         with (
             patch.dict("os.environ", {"JARVIS_PRIVACY_MODE": "true"}),
-            patch("open_jarvis.memory.load_memory", return_value=memory),
-            patch("open_jarvis.memory.get_top_habits", return_value=[("private command", 9)]),
+            patch("ultron.memory.load_memory", return_value=memory),
+            patch("ultron.memory.get_top_habits", return_value=[("private command", 9)]),
         ):
             result = groq_router.analyze_with_groq("hello", client=DummyClient())
 

@@ -2,9 +2,9 @@
 
 from unittest import TestCase
 
-from open_jarvis.runtime.e2e_readiness import build_e2e_readiness_plan
-from open_jarvis.runtime.onboarding_engine import build_onboarding_result
-from open_jarvis.runtime.workflow_engine import build_workflow_plan
+from ultron.runtime.e2e_readiness import build_e2e_readiness_plan
+from ultron.runtime.onboarding_engine import build_onboarding_result
+from ultron.runtime.workflow_engine import build_workflow_plan
 
 
 class ProductOnboardingWorkflowTest(TestCase):

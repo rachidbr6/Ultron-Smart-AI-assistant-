@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from open_jarvis.config.paths import ConfigPaths, resolve_config_paths
+from ultron.config.paths import ConfigPaths, resolve_config_paths
 
 
 class ConfigPathTests(unittest.TestCase):

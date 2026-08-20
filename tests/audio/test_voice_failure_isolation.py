@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from open_jarvis.audio.tts_queue import TTSQueue
-from open_jarvis.audio.voice_controller import VoiceController
-from open_jarvis.audio.voice_state import VoiceState
+from ultron.audio.tts_queue import TTSQueue
+from ultron.audio.voice_controller import VoiceController
+from ultron.audio.voice_state import VoiceState
 
 
 class VoiceFailureIsolationTest(TestCase):

@@ -17,7 +17,7 @@ JARVIS can fall back to offline transcription when a local Vosk model is availab
 
 Common candidates:
 
-- `%USERPROFILE%\.open_jarvis\vosk_models`
+- `%USERPROFILE%\.ultron\vosk_models`
 - `models/vosk-model-small-en-us-0.15`
 - `model`
 

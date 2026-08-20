@@ -409,7 +409,7 @@ Do not add image links until the matching files exist. Broken image links make t
 Open.Jarvis/
 +-- .github/                         CI workflow and issue templates
 +-- docs/                            Architecture, threat model, plugin security, offline STT, and release docs
-+-- open_jarvis/                     Main source package
++-- ultron/                     Main source package
 |   +-- app/                         Package entry point
 |   +-- audio/                       Voice state, wake word, microphone diagnostics, TTS/STT helpers
 |   +-- commands/                    Local router, Groq compatibility wrappers, action schema, dispatcher
@@ -529,7 +529,7 @@ python jarvis.py
 ### Package Entry Point
 
 ```powershell
-python -m open_jarvis.app.main
+python -m ultron.app.main
 ```
 
 ### Desktop UI Launcher

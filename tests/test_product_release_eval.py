@@ -4,21 +4,21 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from open_jarvis.evaluation.eval_artifacts import build_eval_artifact, compare_eval_artifacts, write_eval_artifacts
-from open_jarvis.evaluation.eval_measurements import run_measured_eval_suite
-from open_jarvis.evaluation.eval_runner import run_eval_suite
-from open_jarvis.evaluation.evaluation_suite import build_eval_suite, summarize_eval_results
-from open_jarvis.integrations.model_installer import (
+from ultron.evaluation.eval_artifacts import build_eval_artifact, compare_eval_artifacts, write_eval_artifacts
+from ultron.evaluation.eval_measurements import run_measured_eval_suite
+from ultron.evaluation.eval_runner import run_eval_suite
+from ultron.evaluation.evaluation_suite import build_eval_suite, summarize_eval_results
+from ultron.integrations.model_installer import (
     build_model_install_plan,
     build_signed_model_catalog,
     verify_model_catalog,
     verify_model_checksum,
 )
-from open_jarvis.integrations.model_installer import main as model_installer_main
-from open_jarvis.release.release_build import build_release_artifacts, build_windows_release_plan, compute_file_sha256
-from open_jarvis.release.release_build import main as release_build_main
-from open_jarvis.security.release_security import build_key_rotation_plan, build_release_manifest, validate_release_environment
-from open_jarvis.ui.release_panel import build_release_panel
+from ultron.integrations.model_installer import main as model_installer_main
+from ultron.release.release_build import build_release_artifacts, build_windows_release_plan, compute_file_sha256
+from ultron.release.release_build import main as release_build_main
+from ultron.security.release_security import build_key_rotation_plan, build_release_manifest, validate_release_environment
+from ultron.ui.release_panel import build_release_panel
 
 
 class ProductReleaseEvalTest(TestCase):
@@ -197,7 +197,7 @@ class ProductReleaseEvalTest(TestCase):
         self.assertTrue(any(item["measurement_source"] == "stt_fixture" for item in result["results"]))
 
     def test_eval_runner_cli_can_write_measured_artifacts(self):
-        from open_jarvis.evaluation.eval_runner import main as eval_runner_main
+        from ultron.evaluation.eval_runner import main as eval_runner_main
 
         with TemporaryDirectory() as tmp:
             exit_code = eval_runner_main(

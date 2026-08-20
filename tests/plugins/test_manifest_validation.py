@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from open_jarvis.plugins.manifest import derive_plugin_id, validate_plugin_manifest_schema
+from ultron.plugins.manifest import derive_plugin_id, validate_plugin_manifest_schema
 
 
 class PluginManifestValidationTest(TestCase):

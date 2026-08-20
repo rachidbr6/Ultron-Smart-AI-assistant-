@@ -2,8 +2,8 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from open_jarvis.release.portable_policy import is_denied_portable_path
-from open_jarvis.release.repo_hygiene import find_hygiene_items
+from ultron.release.portable_policy import is_denied_portable_path
+from ultron.release.repo_hygiene import find_hygiene_items
 
 
 class ArtifactSafetyTests(unittest.TestCase):

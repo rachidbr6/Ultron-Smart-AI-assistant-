@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
-from open_jarvis.runtime.orchestrator import handle_runtime_command
+from ultron.runtime.orchestrator import handle_runtime_command
 
 
 class DummyWakeState:

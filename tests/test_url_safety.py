@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import patch
 
-from open_jarvis.commands.domains.runtime_actions import handle_runtime_action
-from open_jarvis.integrations.url_safety import normalize_web_url
+from ultron.commands.domains.runtime_actions import handle_runtime_action
+from ultron.integrations.url_safety import normalize_web_url
 
 
 class DummyLogger:
@@ -27,7 +27,7 @@ class UrlSafetyTests(unittest.TestCase):
         spoken = []
         context = {"speak": spoken.append, "logger": DummyLogger()}
 
-        with patch("open_jarvis.commands.domains.runtime_actions.webbrowser.open") as open_mock:
+        with patch("ultron.commands.domains.runtime_actions.webbrowser.open") as open_mock:
             result = handle_runtime_action("open_web", {"url": "javascript:alert(1)"}, context)
 
         self.assertFalse(result)

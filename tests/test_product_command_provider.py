@@ -2,10 +2,10 @@
 
 from unittest import TestCase
 
-from open_jarvis.commands.command_history import CommandHistory
-from open_jarvis.commands.command_suggestions import suggest_commands
-from open_jarvis.commands.error_messages import build_user_error
-from open_jarvis.integrations.llm_fallback import build_provider_result, resolve_ai_mode, select_llm_provider
+from ultron.commands.command_history import CommandHistory
+from ultron.commands.command_suggestions import suggest_commands
+from ultron.commands.error_messages import build_user_error
+from ultron.integrations.llm_fallback import build_provider_result, resolve_ai_mode, select_llm_provider
 
 
 class ProductCommandProviderTest(TestCase):

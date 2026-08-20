@@ -1,7 +1,7 @@
 import unittest
 
-from open_jarvis.config.defaults import build_default_config
-from open_jarvis.config.schema import FIELD_DEFINITIONS, get_field
+from ultron.config.defaults import build_default_config
+from ultron.config.schema import FIELD_DEFINITIONS, get_field
 
 
 class ConfigSchemaTests(unittest.TestCase):

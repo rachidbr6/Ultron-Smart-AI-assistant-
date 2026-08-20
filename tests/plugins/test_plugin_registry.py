@@ -3,7 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from open_jarvis.plugins.registry import build_plugin_registry
+from ultron.plugins.registry import build_plugin_registry
 
 
 def _write_manifest(plugin_dir: Path, manifest: dict):

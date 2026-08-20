@@ -1,7 +1,7 @@
 import unittest
 
-from open_jarvis.config.defaults import build_default_config
-from open_jarvis.config.validation import parse_bool, validate_config
+from ultron.config.defaults import build_default_config
+from ultron.config.validation import parse_bool, validate_config
 
 
 class ConfigValidationTests(unittest.TestCase):

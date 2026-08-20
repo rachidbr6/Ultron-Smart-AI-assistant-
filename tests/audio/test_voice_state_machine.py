@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from open_jarvis.audio.voice_state import VoiceState, VoiceStateMachine, transition_voice_state
+from ultron.audio.voice_state import VoiceState, VoiceStateMachine, transition_voice_state
 
 
 class VoiceStateMachineTest(TestCase):

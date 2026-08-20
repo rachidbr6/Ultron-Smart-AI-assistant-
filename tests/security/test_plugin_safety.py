@@ -2,8 +2,8 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from open_jarvis.plugins.loader import load_plugin
-from open_jarvis.plugins.manifest import validate_plugin_manifest_schema
+from ultron.plugins.loader import load_plugin
+from ultron.plugins.manifest import validate_plugin_manifest_schema
 
 
 class PluginSafetyTests(unittest.TestCase):

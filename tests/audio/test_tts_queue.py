@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from open_jarvis.audio.tts_queue import TTSQueue
+from ultron.audio.tts_queue import TTSQueue
 
 
 class TTSQueueTest(TestCase):

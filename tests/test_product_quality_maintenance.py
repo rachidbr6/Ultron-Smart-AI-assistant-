@@ -2,9 +2,9 @@
 
 from unittest import TestCase
 
-from open_jarvis.evaluation.performance_benchmarks import build_performance_budget, summarize_benchmark_results
-from open_jarvis.health.feature_quality import build_feature_catalog, build_feature_quality_report, render_feature_quality_report
-from open_jarvis.release.maintenance import build_maintenance_plan
+from ultron.evaluation.performance_benchmarks import build_performance_budget, summarize_benchmark_results
+from ultron.health.feature_quality import build_feature_catalog, build_feature_quality_report, render_feature_quality_report
+from ultron.release.maintenance import build_maintenance_plan
 
 
 class ProductQualityMaintenanceTest(TestCase):

@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import patch
 
-from open_jarvis.runtime.process_runner import launch_process, run_command
-from open_jarvis.security.command_safety import validate_process_command
+from ultron.runtime.process_runner import launch_process, run_command
+from ultron.security.command_safety import validate_process_command
 
 
 class CommandSafetyTests(unittest.TestCase):
@@ -13,7 +13,7 @@ class CommandSafetyTests(unittest.TestCase):
         self.assertIn("sequence", result.reason)
 
     def test_safe_app_launch_is_preserved(self):
-        with patch("open_jarvis.runtime.process_runner.subprocess.Popen") as popen_mock:
+        with patch("ultron.runtime.process_runner.subprocess.Popen") as popen_mock:
             launch_process(["notepad.exe"])
 
         popen_mock.assert_called_once_with(["notepad.exe"], shell=False)
@@ -33,7 +33,7 @@ class CommandSafetyTests(unittest.TestCase):
     def test_shutdown_requires_explicit_destructive_approval(self):
         self.assertFalse(validate_process_command(["shutdown", "/s", "/t", "5"]).allowed)
 
-        with patch("open_jarvis.runtime.process_runner.subprocess.run") as run_mock:
+        with patch("ultron.runtime.process_runner.subprocess.run") as run_mock:
             run_command(["shutdown", "/s", "/t", "5"], allow_destructive=True)
 
         run_mock.assert_called_once_with(["shutdown", "/s", "/t", "5"], check=False, shell=False)

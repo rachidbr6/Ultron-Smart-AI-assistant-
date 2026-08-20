@@ -2,9 +2,9 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from open_jarvis.config.manager import ConfigManager
-from open_jarvis.config.paths import ConfigPaths
-from open_jarvis.ui.settings_panel import SettingsPanelModel, build_settings_view_model, collect_editable_settings
+from ultron.config.manager import ConfigManager
+from ultron.config.paths import ConfigPaths
+from ultron.ui.settings_panel import SettingsPanelModel, build_settings_view_model, collect_editable_settings
 
 
 class SettingsPanelViewModelTests(unittest.TestCase):
@@ -55,7 +55,7 @@ class SettingsPanelViewModelTests(unittest.TestCase):
             self.assertFalse((Path(tmp) / ".env").exists())
 
     def test_settings_dialog_no_longer_writes_env_files(self):
-        content = Path("open_jarvis/ui/ui_dialogs.py").read_text(encoding="utf-8")
+        content = Path("ultron/ui/ui_dialogs.py").read_text(encoding="utf-8")
 
         self.assertNotIn("write_env_settings(settings)", content)
         self.assertIn("SettingsPanelModel", content)

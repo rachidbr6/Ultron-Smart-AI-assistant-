@@ -2,9 +2,9 @@
 
 from unittest import TestCase
 
-from open_jarvis.audio.tts_provider import build_tts_provider_options, select_tts_provider
-from open_jarvis.audio.voice_calibration import build_calibration_recommendation
-from open_jarvis.integrations.offline_profile import build_offline_profile
+from ultron.audio.tts_provider import build_tts_provider_options, select_tts_provider
+from ultron.audio.voice_calibration import build_calibration_recommendation
+from ultron.integrations.offline_profile import build_offline_profile
 
 
 class ProductAudioOfflineTest(TestCase):

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from open_jarvis.release.portable_policy import (
+from ultron.release.portable_policy import (
     DEFAULT_APP_NAME,
     GUIDANCE_FOLDERS,
     REQUIRED_ROOT_FILES,
