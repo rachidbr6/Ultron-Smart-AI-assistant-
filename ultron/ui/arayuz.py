@@ -2,6 +2,15 @@
 
 from __future__ import annotations
 
+import sys
+
+for _stream in (sys.stdout, sys.stderr):
+    if _stream is not None and hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 import datetime
 import math
 import os
@@ -55,6 +64,7 @@ class JarvisApp(ctk.CTk):
         super().__init__()
 
         self.title("ULTRON Cyber Interface")
+        self._set_window_icon()
         self.geometry("1600x900")
         self.minsize(1366, 768)
         self.configure(fg_color=BG)
@@ -493,6 +503,22 @@ class JarvisApp(ctk.CTk):
             self.state("normal")
         else:
             self.state("zoomed")
+
+    def _set_window_icon(self):
+        icon_path = os.path.join(os.path.dirname(__file__), "assets", "icon.ico")
+
+        def apply():
+            try:
+                self.iconbitmap(icon_path)
+            except Exception as exc:
+                print(f"[WARN] Failed to set window icon: {exc}")
+
+        # customtkinter re-applies its own window styling shortly after
+        # startup on Windows, which resets an icon set during __init__ -
+        # (re)apply it after that settles, and once more for good measure.
+        apply()
+        self.after(300, apply)
+        self.after(1000, apply)
 
     def _build_tray_image(self):
         size = 64

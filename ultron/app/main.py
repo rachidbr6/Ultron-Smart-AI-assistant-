@@ -3,6 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import sys
+
+for _stream in (sys.stdout, sys.stderr):
+    if _stream is not None and hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
 
 from ultron.runtime.jarvis_runtime import set_ui_callback, start_jarvis
 
