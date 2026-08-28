@@ -40,7 +40,7 @@ FIELD_DEFINITIONS: dict[str, FieldDefinition] = {
         allowed_values=("auto", "free_cloud", "offline", "rules", "local", "cloud"),
     ),
     "ai.groq_enabled": FieldDefinition("ai.groq_enabled", "bool", False, env_var="JARVIS_ENABLE_GROQ"),
-    "ai.groq_model": FieldDefinition("ai.groq_model", "string", "openai/gpt-oss-20b", env_var="JARVIS_GROQ_MODEL"),
+    "ai.groq_model": FieldDefinition("ai.groq_model", "string", "openai/gpt-oss-120b", env_var="JARVIS_GROQ_MODEL"),
     "ai.local_llm_url": FieldDefinition("ai.local_llm_url", "string", "", env_var="JARVIS_LOCAL_LLM_URL"),
     "ai.local_provider_enabled": FieldDefinition("ai.local_provider_enabled", "bool", True),
     "ai.cloud_provider": FieldDefinition(

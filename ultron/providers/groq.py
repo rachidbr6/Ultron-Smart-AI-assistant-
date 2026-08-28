@@ -15,7 +15,7 @@ try:
 except ImportError:  # pragma: no cover - optional dependency is installed in normal dev/test flows.
     GroqError = RuntimeError
 
-DEFAULT_GROQ_MODEL = "openai/gpt-oss-20b"
+DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b"
 GROQ_COOLDOWN_SECONDS = 120
 _groq_cooldown_until = 0.0
 

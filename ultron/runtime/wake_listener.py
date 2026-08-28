@@ -16,7 +16,7 @@ WAKE_WORD = str(WAKE_WORD_CONFIG["wake_word"])
 ACTIVE_TIMEOUT = int(os.getenv("JARVIS_ACTIVE_TIMEOUT", "60"))
 
 _wake_recognizer = sr.Recognizer()
-_wake_recognizer.energy_threshold = int(os.getenv("JARVIS_ENERGY_THRESHOLD", "300"))
+_wake_recognizer.energy_threshold = int(os.getenv("JARVIS_ENERGY_THRESHOLD", "200"))
 _wake_recognizer.dynamic_energy_threshold = False  # Disable for better performance
 _wake_recognizer.pause_threshold = 0.5  # Shorter pause detection for better responsiveness
 
@@ -58,17 +58,18 @@ def listen_for_wake_word(*, logger, send_log, speak=None) -> None:
                 # _wake_recognizer.adjust_for_ambient_noise(source, duration=0.1)
                 
                 # Use shorter timeout and phrase limits for faster response
-                audio = _wake_recognizer.listen(source, timeout=2, phrase_time_limit=2)
+                audio = _wake_recognizer.listen(source, timeout=2, phrase_time_limit=3)
             
             # Only transcribe if we got audio
             if audio.frame_data:
                 text = transcribe_audio(_wake_recognizer, audio, language="en-US", prefer_offline=True)
                 triggered = False
                 if text:
-                    logger.debug(f"Recognized text: {text}")
+                    score = fuzzy_wake_word_score(text, WAKE_WORD)
+                    logger.info(f"Heard (offline): {text!r} (fuzzy score={score:.2f})")
                     if wake_word_detected(text, config=WAKE_WORD_CONFIG):
                         triggered = True
-                    elif fuzzy_wake_word_score(text, WAKE_WORD) >= 0.4:
+                    elif score >= 0.32:
                         # The compact offline model may not know an unusual
                         # wake word and substitutes the closest real word it
                         # does know (e.g. "Ultron" heard as "outrun"). Rather
@@ -80,8 +81,8 @@ def listen_for_wake_word(*, logger, send_log, speak=None) -> None:
                             online_text = _wake_recognizer.recognize_google(audio, language="en-US")
                         except (sr.UnknownValueError, sr.RequestError):
                             online_text = ""
+                        logger.info(f"Online confirmation heard: {online_text!r}")
                         if online_text:
-                            logger.debug(f"Online confirmation heard: {online_text}")
                             triggered = wake_word_detected(online_text, config=WAKE_WORD_CONFIG)
                 if triggered:
                     print("\n🟢 Wake word detected!")
