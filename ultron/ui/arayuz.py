@@ -14,6 +14,7 @@ for _stream in (sys.stdout, sys.stderr):
 import datetime
 import math
 import os
+import subprocess
 import threading
 import time
 
@@ -59,6 +60,24 @@ TEXT_DIM = PALETTE["text_muted"]
 TEXT = PALETTE["text"]
 LINE = PALETTE["line"]
 STARTUP_GREETING = "Good day. All systems are ready."
+
+
+def _detect_gpu_name() -> str:
+    """Best-effort GPU name lookup for the telemetry bar - static, queried once."""
+
+    try:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", "(Get-CimInstance Win32_VideoController | Select-Object -First 1).Name"],
+            capture_output=True,
+            text=True,
+            timeout=3,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+        name = result.stdout.strip()
+        return name if name else "N/A"
+    except (OSError, subprocess.SubprocessError):
+        return "N/A"
+
 
 class JarvisApp(ctk.CTk):
     def __init__(self):
@@ -143,18 +162,22 @@ class JarvisApp(ctk.CTk):
 
         controls = ctk.CTkFrame(bar, fg_color="transparent")
         controls.grid(row=0, column=2, padx=18, pady=6, sticky="e")
-        for text, command in [("-", self.iconify), ("[]", self._toggle_maximize), ("X", self._hide_to_tray)]:
+        for text, hover, command in [
+            ("−", BLUE_DIM, self.iconify),
+            ("□", BLUE_DIM, self._toggle_maximize),
+            ("✕", "#5C161B", self._hide_to_tray),
+        ]:
             ctk.CTkButton(
                 controls,
                 text=text,
                 width=36,
                 height=28,
                 fg_color="#1C0709",
-                hover_color=BLUE_DIM,
+                hover_color=hover,
                 border_width=1,
                 border_color=BLUE,
                 corner_radius=5,
-                font=font("ui", 14, "bold"),
+                font=font("ui", 13),
                 text_color=BLUE,
                 command=command,
             ).pack(side="left", padx=5)
@@ -205,7 +228,7 @@ class JarvisApp(ctk.CTk):
 
         self._title_label = ctk.CTkLabel(
             self._dashboard_page,
-            text="J A R V I S",
+            text="U L T R O N",
             font=font("display", 58, "bold"),
             text_color=BLUE,
         )
@@ -280,7 +303,8 @@ class JarvisApp(ctk.CTk):
         self._clock_label = self._mini_value(telemetry, "TIME", "00:00:00", BLUE)
         self._cpu_label = self._mini_value(telemetry, "CPU", "--%", AMBER)
         self._ram_label = self._mini_value(telemetry, "MEMORY", "--%", AMBER)
-        self._gpu_label = self._mini_value(telemetry, "GPU", "N/A", TEXT_DIM)
+        self._gpu_label = self._mini_value(telemetry, "GPU", "Detecting...", TEXT_DIM)
+        self.after(50, self._detect_gpu_async)
 
         self._wave_canvas = ctk.CTkCanvas(bar, width=230, height=48, bg=BG, highlightthickness=1, highlightbackground=LINE)
         self._wave_canvas.grid(row=0, column=2, padx=20, pady=12)
@@ -376,6 +400,16 @@ class JarvisApp(ctk.CTk):
         value_label = ctk.CTkLabel(frame, text=value, font=font("mono", 10, "bold"), text_color=color)
         value_label.pack(anchor="w")
         return value_label
+
+    def _detect_gpu_async(self):
+        def worker():
+            name = _detect_gpu_name()
+            short_name = name.replace("(R)", "").replace("(TM)", "").strip()
+            if len(short_name) > 18:
+                short_name = short_name[:17] + "…"
+            self.after(0, lambda: self._gpu_label.configure(text=short_name, text_color=AMBER))
+
+        threading.Thread(target=worker, daemon=True).start()
 
     def _draw_hologram(self):
         self._ring_angle = draw_hologram_figure(

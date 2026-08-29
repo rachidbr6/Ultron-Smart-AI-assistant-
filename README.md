@@ -481,6 +481,16 @@ python -m pip install -r requirements-dev.txt
 python -m pip install -e .
 ```
 
+### Desktop UI Font
+
+The desktop UI's headers and centerpiece wordmark use "Orbitron" - install
+it once per machine (per-user, no admin rights needed) or titles silently
+fall back to a plain default font:
+
+```powershell
+python scripts/install_ui_font.py
+```
+
 ---
 
 ## Configuration
