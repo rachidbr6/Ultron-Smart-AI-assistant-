@@ -295,7 +295,9 @@ class ProjectQualityFilesTests(unittest.TestCase):
         self.assertIn('"settings"', content)
         self.assertIn("_draw_equalizer", content)
         self.assertIn("_draw_background", content)
-        self.assertIn("_draw_sidebar_dots", content)
+        self.assertIn("_manual_activate", content)
+        self.assertIn("_manual_stop", content)
+        self.assertIn("LOCAL TIME", content)
         self.assertIn("_draw_bottom_reactor", content)
         self.assertIn("COMMAND STREAM", content)
         self.assertIn("set_assistant_state", content)
@@ -305,7 +307,6 @@ class ProjectQualityFilesTests(unittest.TestCase):
         self.assertIn("_signal_phase", content)
         self.assertIn("self.after(90, self._draw_equalizer)", content)
         self.assertIn("self.after(70, self._draw_waveform)", content)
-        self.assertIn("self.after(120, self._draw_sidebar_dots)", content)
         for removed_button in ['"SETTINGS"', '"PLUGINS"', '"LOGS"']:
             self.assertNotIn(removed_button, content)
 

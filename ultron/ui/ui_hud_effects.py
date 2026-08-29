@@ -78,35 +78,57 @@ def draw_active_sidebar_icon(canvas, *, palette: dict) -> None:
     canvas.create_oval(25, 25, 35, 35, outline=glow, width=1)
 
 
-def draw_sidebar_icon(canvas, icon: str, *, palette: dict, clear: bool = True) -> None:
-    """Draw compact line icons matching the reference HUD sidebar."""
+def draw_sidebar_icon(canvas, icon: str, *, palette: dict, clear: bool = True, small: bool = False) -> None:
+    """Draw compact line icons matching the reference HUD sidebar.
+
+    Coordinates are authored for a 46x46 canvas; `small` scales them down
+    for the tighter 32x32 icons used in the labeled sidebar rows.
+    """
 
     accent = palette["cyan"]
     if clear:
         canvas.delete("all")
-    if icon == "pulse":
-        canvas.create_line(7, 24, 17, 24, 21, 13, 26, 33, 30, 24, 39, 24, fill=accent, width=2)
+
+    scale = (32 / 46) if small else 1.0
+
+    def pt(x: float, y: float) -> tuple[float, float]:
+        return (x * scale, y * scale)
+
+    def line(*coords: float, width: float = 1) -> None:
+        canvas.create_line(*[c * scale for c in coords], fill=accent, width=max(1, round(width * scale)))
+
+    if icon == "core":
+        canvas.create_oval(*pt(15, 15), *pt(31, 31), outline=accent, width=max(1, round(2 * scale)))
+        canvas.create_oval(*pt(20, 20), *pt(26, 26), outline=palette["cyan_soft"], width=1)
+    elif icon == "pulse":
+        line(7, 24, 17, 24, 21, 13, 26, 33, 30, 24, 39, 24, width=2)
     elif icon == "cube":
-        canvas.create_polygon(23, 8, 35, 15, 35, 30, 23, 38, 11, 30, 11, 15, outline=accent, fill="", width=1)
-        canvas.create_line(23, 8, 23, 23, fill=accent)
-        canvas.create_line(35, 15, 23, 23, 11, 15, fill=accent)
-        canvas.create_line(23, 23, 23, 38, fill=accent)
+        canvas.create_polygon(
+            *pt(23, 8), *pt(35, 15), *pt(35, 30), *pt(23, 38), *pt(11, 30), *pt(11, 15), outline=accent, fill="", width=1
+        )
+        line(23, 8, 23, 23)
+        line(35, 15, 23, 23, 11, 15)
+        line(23, 23, 23, 38)
     elif icon == "nodes":
-        for line in [(23, 13, 13, 31), (23, 13, 33, 31), (15, 34, 31, 34)]:
-            canvas.create_line(*line, fill=accent, width=1)
+        for coords in [(23, 13, 13, 31), (23, 13, 33, 31), (15, 34, 31, 34)]:
+            line(*coords)
+        radius = max(1.5, 3 * scale)
         for x, y in [(23, 9), (11, 34), (35, 34)]:
-            canvas.create_oval(x - 3, y - 3, x + 3, y + 3, outline=accent, width=1)
+            cx, cy = pt(x, y)
+            canvas.create_oval(cx - radius, cy - radius, cx + radius, cy + radius, outline=accent, width=1)
     elif icon == "shield":
-        canvas.create_polygon(23, 8, 34, 14, 32, 29, 23, 38, 14, 29, 12, 14, outline=accent, fill="", width=2)
-        canvas.create_line(23, 13, 23, 33, fill=accent, width=1)
+        canvas.create_polygon(
+            *pt(23, 8), *pt(34, 14), *pt(32, 29), *pt(23, 38), *pt(14, 29), *pt(12, 14), outline=accent, fill="", width=max(1, round(2 * scale))
+        )
+        line(23, 13, 23, 33)
     else:
-        canvas.create_oval(17, 17, 29, 29, outline=accent, width=2)
+        canvas.create_oval(*pt(17, 17), *pt(29, 29), outline=accent, width=max(1, round(2 * scale)))
         for angle in range(0, 360, 45):
             x1 = 23 + 8 * math.cos(math.radians(angle))
             y1 = 23 + 8 * math.sin(math.radians(angle))
             x2 = 23 + 15 * math.cos(math.radians(angle))
             y2 = 23 + 15 * math.sin(math.radians(angle))
-            canvas.create_line(x1, y1, x2, y2, fill=accent, width=2)
+            line(x1, y1, x2, y2, width=2)
 
 
 def draw_sidebar_nav_icon(canvas, icon: str, *, palette: dict, active: bool = False, hover: bool = False) -> None:

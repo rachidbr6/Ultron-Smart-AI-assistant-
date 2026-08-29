@@ -222,5 +222,18 @@ def speak(text: str):
         send_log("[OK] Speaking completed")
 
 
+def stop_speaking():
+    """Immediately silence any speech currently playing (manual interrupt)."""
+
+    if not AUDIO_AVAILABLE:
+        return
+    try:
+        if pygame.mixer.music.get_busy():
+            pygame.mixer.music.stop()
+            send_log("[INFO] Speech interrupted, sir.")
+    except (OSError, RuntimeError, pygame.error):
+        pass
+
+
 if __name__ == "__main__":
     speak("All systems online. Ultron is ready, sir.")

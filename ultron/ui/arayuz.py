@@ -24,6 +24,9 @@ import pystray
 from PIL import Image, ImageDraw
 
 from ultron.app.main import set_ui_callback, start_jarvis
+from ultron.audio.ses_motoru import speak as ultron_speak
+from ultron.audio.ses_motoru import stop_speaking
+from ultron.runtime import wake_listener
 from ultron.runtime.wake_listener import get_mic_level
 from ultron.health.observability import build_latency_snapshot, build_slo_report
 from ultron.integrations.llm_fallback import describe_ai_status
@@ -33,7 +36,6 @@ from ultron.ui.ui_hud_effects import (
     draw_background_depth,
     draw_equalizer,
     draw_mini_orb,
-    draw_sidebar_dots,
     draw_waveform,
 )
 from ultron.ui.ui_log_events import infer_log_kind, normalize_log_event
@@ -102,7 +104,6 @@ class JarvisApp(ctk.CTk):
         self._ring_angle = 0
         self._signal_phase = 0.0
         self._mic_level_smoothed = 0.0
-        self._sidebar_phase = 0.0
         self._mini_orb_phase = 0.0
         self._assistant_state = "BOOTING"
         self._state_profile = get_state_profile("BOOTING")
@@ -132,7 +133,7 @@ class JarvisApp(ctk.CTk):
         self._build_bottombar()
 
     def _build_titlebar(self):
-        bar = ctk.CTkFrame(self._shell, fg_color=BG, corner_radius=12, height=48, border_width=1, border_color=SOFT_LINE)
+        bar = ctk.CTkFrame(self._shell, fg_color=BG, corner_radius=12, height=68, border_width=1, border_color=SOFT_LINE)
         bar.grid(row=0, column=0, sticky="ew")
         bar.grid_propagate(False)
         bar.grid_columnconfigure(1, weight=1)
@@ -147,18 +148,14 @@ class JarvisApp(ctk.CTk):
             text_color=TEXT,
         ).pack(side="left")
 
-        self._date_label = ctk.CTkLabel(
-            bar,
-            text="INITIALIZING",
-            font=font("mono", 10, "bold"),
-            text_color=TEXT_DIM,
-            fg_color=PANEL,
-            corner_radius=999,
-            width=170,
-            padx=18,
-            pady=7,
-        )
-        self._date_label.grid(row=0, column=1, pady=8)
+        clock_widget = ctk.CTkFrame(bar, fg_color=PANEL, corner_radius=8, border_width=1, border_color=BLUE, width=240, height=52)
+        clock_widget.grid(row=0, column=1, pady=8)
+        clock_widget.grid_propagate(False)
+        ctk.CTkLabel(clock_widget, text="LOCAL TIME", font=font("mono", 8, "bold"), text_color=TEXT_DIM).pack(pady=(6, 0))
+        self._clock_display = ctk.CTkLabel(clock_widget, text="00:00:00", font=font("display", 20, "bold"), text_color=BLUE)
+        self._clock_display.pack()
+        self._date_label = ctk.CTkLabel(clock_widget, text="INITIALIZING", font=font("mono", 8, "bold"), text_color=TEXT_DIM)
+        self._date_label.pack(pady=(0, 6))
 
         controls = ctk.CTkFrame(bar, fg_color="transparent")
         controls.grid(row=0, column=2, padx=18, pady=6, sticky="e")
@@ -184,8 +181,9 @@ class JarvisApp(ctk.CTk):
 
         bar.bind("<ButtonPress-1>", self._drag_start)
         bar.bind("<B1-Motion>", self._drag_move)
-        self._date_label.bind("<ButtonPress-1>", self._drag_start)
-        self._date_label.bind("<B1-Motion>", self._drag_move)
+        for widget in (clock_widget, self._clock_display, self._date_label):
+            widget.bind("<ButtonPress-1>", self._drag_start)
+            widget.bind("<B1-Motion>", self._drag_move)
 
     def _build_center_stage(self):
         stage = ctk.CTkFrame(self._shell, fg_color=BG, corner_radius=0)
@@ -242,8 +240,41 @@ class JarvisApp(ctk.CTk):
         )
         self._subtitle_label.grid(row=3, column=0, pady=(0, 16))
 
+        controls_row = ctk.CTkFrame(self._dashboard_page, fg_color="transparent")
+        controls_row.grid(row=4, column=0, pady=(0, 12))
+        self._mic_button = ctk.CTkButton(
+            controls_row,
+            text="●",
+            width=52,
+            height=52,
+            corner_radius=26,
+            fg_color=PANEL,
+            hover_color=BLUE_DIM,
+            border_width=2,
+            border_color=BLUE,
+            font=font("ui", 18),
+            text_color=BLUE,
+            command=self._manual_activate,
+        )
+        self._mic_button.pack(side="left", padx=10)
+        self._stop_button = ctk.CTkButton(
+            controls_row,
+            text="■",
+            width=52,
+            height=52,
+            corner_radius=26,
+            fg_color=PANEL,
+            hover_color="#3A0A10",
+            border_width=2,
+            border_color=SOFT_LINE,
+            font=font("ui", 16),
+            text_color=TEXT_DIM,
+            command=self._manual_stop,
+        )
+        self._stop_button.pack(side="left", padx=10)
+
         status_line = ctk.CTkFrame(self._dashboard_page, fg_color="transparent")
-        status_line.grid(row=4, column=0, pady=(0, 10))
+        status_line.grid(row=5, column=0, pady=(0, 10))
         ctk.CTkFrame(status_line, fg_color=LINE, width=58, height=1).pack(side="left", padx=(0, 20), pady=9)
 
         self._status_label = ctk.CTkLabel(
@@ -256,7 +287,7 @@ class JarvisApp(ctk.CTk):
         ctk.CTkFrame(status_line, fg_color=LINE, width=58, height=1).pack(side="left", padx=(20, 0), pady=9)
 
         log_frame = ctk.CTkFrame(self._dashboard_page, fg_color=TERMINAL_BG, corner_radius=3, border_width=1, border_color=LINE)
-        log_frame.grid(row=5, column=0, padx=90, pady=(0, 14), sticky="ew")
+        log_frame.grid(row=6, column=0, padx=90, pady=(0, 14), sticky="ew")
         log_frame.grid_columnconfigure(0, weight=1)
         log_frame.grid_columnconfigure(1, weight=0)
         add_terminal_corners(log_frame, accent=BLUE)
@@ -327,8 +358,8 @@ class JarvisApp(ctk.CTk):
         self._draw_bottom_reactor()
 
     def _build_sidebar(self, parent):
-        _sidebar, self._sidebar_dots = build_sidebar(parent, self._nav_canvases, self._show_page, self._set_nav_hover)
-        self._draw_sidebar_dots()
+        build_sidebar(parent, self._nav_canvases, self._show_page, self._set_nav_hover)
+        refresh_sidebar(self._nav_canvases, self._active_page, self._hover_page)
 
     def _show_page(self, page_key: str):
         self._active_page = page_key
@@ -343,6 +374,24 @@ class JarvisApp(ctk.CTk):
     def _set_nav_hover(self, page_key: str, active: bool):
         self._hover_page = page_key if active else None
         refresh_sidebar(self._nav_canvases, self._active_page, self._hover_page)
+
+    def _manual_activate(self):
+        """Click-to-talk: same effect as saying the wake word, for when
+        speaking it isn't convenient or the mic keeps missing it."""
+
+        if wake_listener.active:
+            return
+
+        def worker():
+            ultron_speak("At your service, sir.")
+            wake_listener.active = True
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _manual_stop(self):
+        """Immediately silence Ultron's current speech."""
+
+        threading.Thread(target=stop_speaking, daemon=True).start()
 
     def _draw_mini_orb(self, parent, size=32):
         canvas = ctk.CTkCanvas(parent, width=size, height=size, bg=BG, highlightthickness=0)
@@ -379,11 +428,6 @@ class JarvisApp(ctk.CTk):
         self._update_mic_level_smoothing()
         draw_waveform(self._wave_canvas, self._signal_phase, palette=PALETTE, activity=self._current_activity())
         self.after(70, self._draw_waveform)
-
-    def _draw_sidebar_dots(self):
-        draw_sidebar_dots(self._sidebar_dots, self._sidebar_phase, palette=PALETTE)
-        self._sidebar_phase = (self._sidebar_phase + 0.22) % (math.pi * 2)
-        self.after(120, self._draw_sidebar_dots)
 
     def _draw_bottom_reactor(self):
         draw_mini_orb(self._bottom_orb, 58, palette=PALETTE, phase=self._mini_orb_phase)
@@ -487,6 +531,7 @@ class JarvisApp(ctk.CTk):
         date_text = f"{days[now.weekday()]}  {now.day} {months[now.month - 1]} {now.year}"
 
         self._clock_label.configure(text=clock)
+        self._clock_display.configure(text=clock)
         self._date_label.configure(text=date_text)
 
         elapsed = int(time.time() - self._start_time)

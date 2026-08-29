@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from functools import lru_cache
 
-_NODE_COUNT = 90
+_NODE_COUNT = 220
 _NEIGHBORS_PER_NODE = 3
 
 
