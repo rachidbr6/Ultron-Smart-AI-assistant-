@@ -7,6 +7,8 @@ import re
 import unicodedata
 from typing import Any
 
+from ultron.runtime.voice_personality import MAIL_INTROS
+
 ActionPayload = dict[str, Any]
 
 # A few natural phrasing variants per action so fast, locally-routed commands
@@ -89,6 +91,10 @@ DIRECT_ACTION_PATTERNS: tuple[tuple[tuple[str, ...], str], ...] = (
     (("current time", "what time", "time now"), "get_time"),
     (("current date", "what date", "what day", "today date"), "get_date"),
     (("battery", "battery status"), "get_battery"),
+    (
+        ("weather", "what's the weather", "whats the weather", "weather today", "weather forecast", "how's the weather", "hows the weather"),
+        "get_weather",
+    ),
     (("ram", "memory usage", "memory status"), "get_ram"),
     (("cpu", "processor usage", "cpu usage"), "get_cpu"),
     (("screenshot", "screen shot", "take screenshot"), "screenshot"),
@@ -127,9 +133,14 @@ WEBSITE_ALIASES = {
     "github": "https://github.com",
     "google": "https://www.google.com",
     "gmail": "https://mail.google.com",
+    "mail": "https://mail.google.com",
+    "email": "https://mail.google.com",
+    "my mail": "https://mail.google.com",
+    "my email": "https://mail.google.com",
     "openai": "https://openai.com",
     "groq": "https://console.groq.com",
 }
+MAIL_TARGETS = {"gmail", "mail", "email", "my mail", "my email"}
 WINDOW_ACTIONS = {
     "minimize all windows": "minimize_all",
     "minimize all": "minimize_all",
@@ -202,13 +213,14 @@ def _normalize_url(value: str) -> str:
 
 
 def _match_open_web(normalized: str) -> ActionPayload | None:
-    prefixes = ("open ", "go to ")
+    prefixes = ("open ", "go to ", "check ")
     for prefix in prefixes:
         if not normalized.startswith(prefix):
             continue
         target = normalized[len(prefix) :].strip()
         if target in WEBSITE_ALIASES:
-            return _payload("open_web", {"url": WEBSITE_ALIASES[target]}, _phrase(_OPEN_WEB_PHRASES, target))
+            response = random.choice(MAIL_INTROS) if target in MAIL_TARGETS else _phrase(_OPEN_WEB_PHRASES, target)
+            return _payload("open_web", {"url": WEBSITE_ALIASES[target]}, response)
         if "." in target and " " not in target:
             return _payload("open_web", {"url": _normalize_url(target)}, _phrase(_OPEN_WEB_PHRASES, target))
     return None

@@ -126,7 +126,7 @@ def _build_page_values(page_key: str) -> dict[str, tuple[str, str, str]]:
             "Groq provider": (_mask_status(env.get("GROQ_API_KEY")), ai["reason"], PALETTE["green"] if env.get("GROQ_API_KEY") else PALETTE["amber"]),
             "Spotify API": (_mask_status(env.get("SPOTIFY_CLIENT_ID")), "Client ID and secret stay masked", PALETTE["green"] if env.get("SPOTIFY_CLIENT_ID") else PALETTE["amber"]),
             "Gemini vision": (_mask_status(env.get("GEMINI_API_KEY")), "Powers \"describe my screen\"", PALETTE["green"] if env.get("GEMINI_API_KEY") else PALETTE["amber"]),
-            "Weather service": ("LOCAL READY", "Uses configured command tooling when enabled", PALETTE["cyan"]),
+            "Weather service": ("READY", "Open-Meteo, no key needed - set JARVIS_WEATHER_CITY to override IP location", PALETTE["green"]),
             "Offline fallback": ("OFF" if env.get("JARVIS_OFFLINE_STT") != "1" else "ON", "Vosk fallback is optional", PALETTE["amber"]),
             "Local LLM endpoint": (_mask_status(env.get("JARVIS_LOCAL_LLM_URL")), ai["mode"], PALETTE["cyan"]),
         }

@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime
 import io
 import os
+import random
 import time
 import webbrowser
 
@@ -21,9 +22,11 @@ except ImportError:
 
 from ultron.health.observability import record_runtime_event
 from ultron.integrations.url_safety import build_google_search_url, normalize_web_url
+from ultron.integrations.weather import build_weather_summary
 from ultron.providers.gemini import GeminiProvider
 from ultron.runtime.process_runner import launch_process, run_command
 from ultron.runtime.runtime_safety import block_message, is_destructive_action, is_destructive_action_allowed
+from ultron.runtime.voice_personality import WEATHER_INTROS
 from ultron.security.jarvis_admin import format_actionable_message
 
 APPLICATIONS = {
@@ -198,6 +201,15 @@ def handle_runtime_action(action: str, params: dict, context: dict) -> bool | No
             speak(f"Battery is at {int(battery.percent)} percent and {status}, sir.")
         else:
             speak("No battery detected, sir.")
+        return True
+
+    if action == "get_weather":
+        speak(random.choice(WEATHER_INTROS))
+        summary = build_weather_summary()
+        if summary is None:
+            speak("I couldn't reach the weather service just now, sir.")
+            return False
+        speak(summary)
         return True
 
     if action == "get_ram":

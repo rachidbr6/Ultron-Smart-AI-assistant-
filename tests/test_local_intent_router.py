@@ -79,6 +79,22 @@ class LocalIntentRouterTests(unittest.TestCase):
                 self.assertEqual(result["action"], "open_web")
                 self.assertEqual(result["params"], {"url": url})
 
+    def test_routes_mail_phrasing_to_gmail_with_a_mail_flavored_response(self):
+        from ultron.runtime.voice_personality import MAIL_INTROS
+
+        for command in ("open mail", "open email", "open my mail", "check my email", "open gmail"):
+            with self.subTest(command=command):
+                result = route_local_intent(command)
+                self.assertEqual(result["action"], "open_web")
+                self.assertEqual(result["params"], {"url": "https://mail.google.com"})
+                self.assertIn(result["response"], MAIL_INTROS)
+
+    def test_routes_weather_phrasing_to_get_weather(self):
+        for command in ("weather", "what's the weather", "weather today", "how's the weather"):
+            with self.subTest(command=command):
+                result = route_local_intent(command)
+                self.assertEqual(result["action"], "get_weather")
+
     def test_routes_window_and_volume_controls_without_llm(self):
         cases = {
             "minimize all windows": ("minimize_all", {}),

@@ -61,6 +61,27 @@ AI_TIPS = [
     "An AI tip, sir - shipping an AI feature quietly is often safer than announcing it loudly. It's easier to fix a rough edge nobody's watching yet.",
 ]
 
+TASK_INTROS = [
+    "Let me pull up your task list, sir.",
+    "Checking your missions now, sir.",
+    "One moment, sir - reviewing where things stand.",
+    "Right away, sir. Here is where you left off.",
+    "Pulling your outstanding tasks, sir.",
+]
+
+WEATHER_INTROS = [
+    "Checking the skies for you, sir.",
+    "One moment, sir - reading the forecast.",
+    "Let me check conditions outside, sir.",
+    "Pulling the latest forecast, sir.",
+]
+
+MAIL_INTROS = [
+    "Opening your mail now, sir.",
+    "Pulling up your inbox, sir.",
+    "Right away, sir - opening mail.",
+]
+
 GOODBYES = [
     "It's been a pleasure serving you today, sir. Ultron signing off.",
     "Until next time, sir. I'll keep the systems warm for your return.",

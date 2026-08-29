@@ -66,6 +66,7 @@ Available actions:
 - "search_google": {"query": "search term"}
 - "get_time": {}
 - "get_date": {}
+- "get_weather": {}
 - "get_battery": {}
 - "get_ram": {}
 - "get_cpu": {}

@@ -10,10 +10,12 @@ from __future__ import annotations
 import ctypes
 import io
 import os
+import random
 import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from ultron.runtime.voice_personality import TASK_INTROS
 from ultron.security.jarvis_admin import format_actionable_message
 
 try:
@@ -193,5 +195,6 @@ def handle_missions_action(action: str, params: dict, context: dict) -> bool | N
         else:
             logger.warning("Missions summary translation unavailable, speaking the original text.")
 
+    speak(random.choice(TASK_INTROS))
     speak(summary)
     return True

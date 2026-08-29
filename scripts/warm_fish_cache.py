@@ -21,7 +21,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from ultron.audio.fish_tts import FISH_CACHE_DIR, fish_cache_path, fish_enabled, synthesize
-from ultron.runtime.voice_personality import AI_TIPS, GOODBYES, JOKES
+from ultron.runtime.voice_personality import (
+    AI_TIPS,
+    GOODBYES,
+    JOKES,
+    MAIL_INTROS,
+    TASK_INTROS,
+    WEATHER_INTROS,
+)
 
 GREETINGS = [
     "Good morning, sir. Ultron is online.",
@@ -57,9 +64,10 @@ ACTION_PHRASES = [
     "What would you like me to note, sir?",
     "Window control functionality is not available on this system, sir.",
     "You have no saved notes, sir.",
+    "I couldn't reach the weather service just now, sir.",
 ]
 
-PHRASES = [*ACTION_PHRASES, *GREETINGS, *JOKES, *AI_TIPS, *GOODBYES]
+PHRASES = [*ACTION_PHRASES, *GREETINGS, *JOKES, *AI_TIPS, *GOODBYES, *TASK_INTROS, *WEATHER_INTROS, *MAIL_INTROS]
 
 
 def _warm_one(phrase: str) -> str:
