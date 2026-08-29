@@ -1,9 +1,12 @@
 """Fish Audio TTS client - the "Ultron" character voice.
 
-Fish Audio's free tier has ~18s of fixed latency per request regardless of
-text length, so this is never called live during normal operation. It is
-only used to pre-generate the fixed phrase set (see warm_fish_cache.py),
-which then plays back instantly from the on-disk cache in ses_motoru.py.
+Used for everything Ultron speaks, live, via ses_motoru.py - not just the
+pre-warmed fixed phrase set (see warm_fish_cache.py). Latency depends on
+which voice model is configured (some Fish Audio models are near-instant,
+others have several seconds of fixed overhead per request regardless of
+text length); ses_motoru.py falls back to the local Edge TTS voice if a
+call fails or the key isn't configured, and caches every result on disk
+so repeats of the same text are always instant either way.
 """
 
 from __future__ import annotations
