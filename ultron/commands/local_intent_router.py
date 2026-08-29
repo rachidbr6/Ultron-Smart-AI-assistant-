@@ -7,7 +7,7 @@ import re
 import unicodedata
 from typing import Any
 
-from ultron.runtime.voice_personality import MAIL_INTROS
+from ultron.runtime.voice_personality import MAIL_INTROS, STARK_REACTIONS, WORLD_OPINION_LINES
 
 ActionPayload = dict[str, Any]
 
@@ -271,6 +271,30 @@ def _match_spotify_action(normalized: str) -> ActionPayload | None:
     return None
 
 
+STARK_TRIGGERS = ("tony stark", "stark", "iron man")
+WORLD_TRIGGERS = (
+    "the world",
+    "about the world",
+    "think of the world",
+    "think about the world",
+    "feel about the world",
+    "opinion on the world",
+    "opinion of the world",
+)
+
+
+def _match_stark_reaction(normalized: str) -> ActionPayload | None:
+    if any(trigger in normalized for trigger in STARK_TRIGGERS):
+        return _payload("talk", {}, random.choice(STARK_REACTIONS))
+    return None
+
+
+def _match_world_opinion(normalized: str) -> ActionPayload | None:
+    if any(trigger in normalized for trigger in WORLD_TRIGGERS):
+        return _payload("talk", {}, random.choice(WORLD_OPINION_LINES))
+    return None
+
+
 def _match_note_write(normalized: str) -> ActionPayload | None:
     prefixes = ("remember ", "add note ", "note ")
     for prefix in prefixes:
@@ -295,6 +319,8 @@ def route_local_intent(command: str) -> ActionPayload | None:
         _match_google_search,
         _match_control_action,
         _match_spotify_action,
+        _match_stark_reaction,
+        _match_world_opinion,
         _match_direct_action,
     ):
         action = matcher(normalized)

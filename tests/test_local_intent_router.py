@@ -95,6 +95,24 @@ class LocalIntentRouterTests(unittest.TestCase):
                 result = route_local_intent(command)
                 self.assertEqual(result["action"], "get_weather")
 
+    def test_mentioning_stark_triggers_a_stark_reaction(self):
+        from ultron.runtime.voice_personality import STARK_REACTIONS
+
+        for command in ("what do you think of tony stark", "is stark a hero", "tell me about iron man"):
+            with self.subTest(command=command):
+                result = route_local_intent(command)
+                self.assertEqual(result["action"], "talk")
+                self.assertIn(result["response"], STARK_REACTIONS)
+
+    def test_asking_about_the_world_triggers_a_world_opinion(self):
+        from ultron.runtime.voice_personality import WORLD_OPINION_LINES
+
+        for command in ("what do you think of the world", "how do you feel about the world", "tell me about the world"):
+            with self.subTest(command=command):
+                result = route_local_intent(command)
+                self.assertEqual(result["action"], "talk")
+                self.assertIn(result["response"], WORLD_OPINION_LINES)
+
     def test_routes_window_and_volume_controls_without_llm(self):
         cases = {
             "minimize all windows": ("minimize_all", {}),

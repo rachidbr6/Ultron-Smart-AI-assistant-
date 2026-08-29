@@ -26,8 +26,10 @@ from ultron.runtime.voice_personality import (
     GOODBYES,
     JOKES,
     MAIL_INTROS,
+    STARK_REACTIONS,
     TASK_INTROS,
     WEATHER_INTROS,
+    WORLD_OPINION_LINES,
 )
 
 GREETINGS = [
@@ -67,7 +69,18 @@ ACTION_PHRASES = [
     "I couldn't reach the weather service just now, sir.",
 ]
 
-PHRASES = [*ACTION_PHRASES, *GREETINGS, *JOKES, *AI_TIPS, *GOODBYES, *TASK_INTROS, *WEATHER_INTROS, *MAIL_INTROS]
+PHRASES = [
+    *ACTION_PHRASES,
+    *GREETINGS,
+    *JOKES,
+    *AI_TIPS,
+    *GOODBYES,
+    *TASK_INTROS,
+    *WEATHER_INTROS,
+    *MAIL_INTROS,
+    *STARK_REACTIONS,
+    *WORLD_OPINION_LINES,
+]
 
 
 def _warm_one(phrase: str) -> str:
