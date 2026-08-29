@@ -23,6 +23,7 @@ import pystray
 from PIL import Image, ImageDraw
 
 from ultron.app.main import set_ui_callback, start_jarvis
+from ultron.runtime.wake_listener import get_mic_level
 from ultron.health.observability import build_latency_snapshot, build_slo_report
 from ultron.integrations.llm_fallback import describe_ai_status
 from ultron.plugins.permission_profiles import get_active_permission_profile
@@ -81,6 +82,7 @@ class JarvisApp(ctk.CTk):
         self._runtime_latency_label = None
         self._ring_angle = 0
         self._signal_phase = 0.0
+        self._mic_level_smoothed = 0.0
         self._sidebar_phase = 0.0
         self._mini_orb_phase = 0.0
         self._assistant_state = "BOOTING"
@@ -323,13 +325,35 @@ class JarvisApp(ctk.CTk):
         draw_mini_orb(canvas, size, palette=PALETTE, phase=self._mini_orb_phase)
         return canvas
 
+    def _update_mic_level_smoothing(self):
+        """Ease the shared activity level toward the real captured mic level.
+
+        Only STANDBY (waiting for the wake word) has a live level to show -
+        this is what makes the meter an honest "is it hearing me" signal
+        instead of decorative motion.
+        """
+
+        target = 0.0
+        if self._assistant_state == "STANDBY":
+            try:
+                target = min(1.0, get_mic_level() * 3.0)
+            except Exception:
+                target = 0.0
+        # Ease toward the target so real audio spikes read as a smooth
+        # reaction rather than a jump cut every ~2 seconds.
+        self._mic_level_smoothed += (target - self._mic_level_smoothed) * 0.25
+
+    def _current_activity(self) -> float:
+        return max(self._state_profile.signal_activity, self._mic_level_smoothed)
+
     def _draw_equalizer(self):
-        draw_equalizer(self._equalizer, self._signal_phase, palette=PALETTE, activity=self._state_profile.signal_activity)
+        draw_equalizer(self._equalizer, self._signal_phase, palette=PALETTE, activity=self._current_activity())
         self._signal_phase = (self._signal_phase + 0.18 * self._state_profile.reactor_speed) % (math.pi * 2)
         self.after(90, self._draw_equalizer)
 
     def _draw_waveform(self):
-        draw_waveform(self._wave_canvas, self._signal_phase, palette=PALETTE, activity=self._state_profile.signal_activity)
+        self._update_mic_level_smoothing()
+        draw_waveform(self._wave_canvas, self._signal_phase, palette=PALETTE, activity=self._current_activity())
         self.after(70, self._draw_waveform)
 
     def _draw_sidebar_dots(self):

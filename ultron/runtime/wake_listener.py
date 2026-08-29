@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import os
+import threading
 import time
 
+import numpy as np
 import speech_recognition as sr
 
 from ultron.audio.speech_backend import recognition_mode, transcribe_audio, SounddeviceMicrophone
@@ -21,6 +23,38 @@ _wake_recognizer.dynamic_energy_threshold = False  # Disable for better performa
 _wake_recognizer.pause_threshold = 0.5  # Shorter pause detection for better responsiveness
 
 active = False
+
+# Real captured-audio level, shared with the UI so its voice meter reflects
+# what the microphone actually picked up rather than a decorative animation.
+_mic_level_lock = threading.Lock()
+_mic_level = 0.0
+_mic_level_updated_at = 0.0
+
+
+def _update_mic_level(audio: sr.AudioData) -> float:
+    """Compute a normalized 0-1 loudness level from a captured audio clip."""
+
+    global _mic_level, _mic_level_updated_at
+    try:
+        samples = np.frombuffer(audio.get_raw_data(), dtype=np.int16).astype(np.float32)
+        rms = float(np.sqrt(np.mean(np.square(samples)))) if samples.size else 0.0
+    except (ValueError, TypeError):
+        rms = 0.0
+    level = min(1.0, rms / 6000.0)
+    with _mic_level_lock:
+        _mic_level = level
+        _mic_level_updated_at = time.time()
+    return level
+
+
+def get_mic_level(max_age: float = 1.5) -> float:
+    """Return the most recent real microphone level, or 0.0 if it's stale."""
+
+    with _mic_level_lock:
+        level, updated_at = _mic_level, _mic_level_updated_at
+    if time.time() - updated_at > max_age:
+        return 0.0
+    return level
 
 
 def listen_for_wake_word(*, logger, send_log, speak=None) -> None:
@@ -62,11 +96,12 @@ def listen_for_wake_word(*, logger, send_log, speak=None) -> None:
             
             # Only transcribe if we got audio
             if audio.frame_data:
+                level = _update_mic_level(audio)
                 text = transcribe_audio(_wake_recognizer, audio, language="en-US", prefer_offline=True)
                 triggered = False
+                logger.info(f"Captured audio: level={level:.2f} recognized={text!r}")
                 if text:
                     score = fuzzy_wake_word_score(text, WAKE_WORD)
-                    logger.info(f"Heard (offline): {text!r} (fuzzy score={score:.2f})")
                     if wake_word_detected(text, config=WAKE_WORD_CONFIG):
                         triggered = True
                     elif score >= 0.32:
