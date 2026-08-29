@@ -47,6 +47,22 @@ def _update_mic_level(audio: sr.AudioData) -> float:
     return level
 
 
+def _online_confirmation_matches(online_text: str) -> bool:
+    """Decide whether an online-recognizer confirmation counts as the wake word.
+
+    Only called after the offline fuzzy pre-filter already gated entry into
+    this branch, so it can afford to accept a bit more than the strict
+    offline alias list would - real usage logs repeatedly showed Google's
+    recognizer clipping the trailing "n" and returning bare "Ultra" for a
+    genuine "Ultron". "ultra" is not a general offline alias (too common a
+    standalone word for that), but it is accepted here specifically.
+    """
+
+    if wake_word_detected(online_text, config=WAKE_WORD_CONFIG):
+        return True
+    return "ultra" in online_text.lower().split()
+
+
 def get_mic_level(max_age: float = 1.5) -> float:
     """Return the most recent real microphone level, or 0.0 if it's stale."""
 
@@ -118,7 +134,7 @@ def listen_for_wake_word(*, logger, send_log, speak=None) -> None:
                             online_text = ""
                         logger.info(f"Online confirmation heard: {online_text!r}")
                         if online_text:
-                            triggered = wake_word_detected(online_text, config=WAKE_WORD_CONFIG)
+                            triggered = _online_confirmation_matches(online_text)
                 if triggered:
                     print("\n🟢 Wake word detected!")
                     send_log("WAKE WORD DETECTED")
