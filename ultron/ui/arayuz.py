@@ -40,7 +40,7 @@ from ultron.ui.ui_log_events import infer_log_kind, normalize_log_event
 from ultron.ui.ui_navigation import build_sidebar, refresh_sidebar
 from ultron.ui.ui_onboarding import show_onboarding
 from ultron.ui.ui_pages import PAGE_TITLES, build_info_page, refresh_info_pages
-from ultron.ui.ui_rendering import draw_hologram_figure
+from ultron.ui.ui_rendering import draw_neural_sphere
 from ultron.ui.ui_state import get_state_profile, infer_state_from_message
 from ultron.ui.ui_theme import PALETTE, font
 
@@ -412,11 +412,12 @@ class JarvisApp(ctk.CTk):
         threading.Thread(target=worker, daemon=True).start()
 
     def _draw_hologram(self):
-        self._ring_angle = draw_hologram_figure(
+        self._ring_angle = draw_neural_sphere(
             self._canvas,
             self._ring_angle,
             accent=self._state_profile.accent,
             speed=self._state_profile.reactor_speed,
+            activity=self._current_activity(),
         )
         self.after(34, self._draw_hologram)
 

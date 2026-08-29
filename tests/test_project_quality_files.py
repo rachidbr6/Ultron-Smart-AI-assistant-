@@ -235,38 +235,43 @@ class ProjectQualityFilesTests(unittest.TestCase):
         self.assertIn("ULTRON", result["title"])
         self.assertGreaterEqual(result["widgets"], 1)
 
-    def test_hologram_layout_has_ring_arcs_spokes_and_particles(self):
-        from ultron.ui.ui_rendering import build_hologram_layout
+    def test_neural_sphere_layout_has_nodes_and_edges(self):
+        from ultron.ui.ui_rendering import build_neural_sphere_layout
 
-        layout = build_hologram_layout(520, 330, angle=15)
+        layout = build_neural_sphere_layout(520, 330, angle=15, activity=0.6)
 
-        self.assertGreaterEqual(len(layout["rings"]), 5)
-        self.assertGreaterEqual(len(layout["arcs"]), 12)
-        self.assertGreaterEqual(len(layout["spokes"]), 16)
-        self.assertGreaterEqual(len(layout["reactor_triads"]), 12)
-        self.assertGreaterEqual(len(layout["light_channels"]), 8)
-        self.assertIn("labels", layout)
-        self.assertEqual(layout["labels"]["top"][2], "ARC REACTOR")
-        self.assertGreaterEqual(len(layout["particles"]), 32)
+        self.assertGreaterEqual(len(layout["nodes"]), 80)
+        self.assertGreaterEqual(len(layout["edges"]), 80)
+        self.assertEqual(len(layout["node_order"]), len(layout["nodes"]))
+        self.assertEqual(len(layout["edge_order"]), len(layout["edges"]))
+        for node in layout["nodes"]:
+            self.assertIn("x", node)
+            self.assertIn("y", node)
+            self.assertGreaterEqual(node["z"], -1.01)
+            self.assertLessEqual(node["z"], 1.01)
 
-    def test_hologram_labels_stay_inside_canvas(self):
-        from ultron.ui.ui_rendering import build_hologram_layout
+    def test_neural_sphere_nodes_stay_near_canvas_bounds(self):
+        from ultron.ui.ui_rendering import build_neural_sphere_layout
 
-        width = 520
-        height = 330
-        layout = build_hologram_layout(width, height, angle=15)
+        width, height = 520, 330
+        layout = build_neural_sphere_layout(width, height, angle=15, activity=0.5)
         cx, cy = layout["center"]
-        outer_ring = layout["rings"][0]
+        radius = layout["radius"]
 
-        for x, y, _text in layout["labels"].values():
-            self.assertGreaterEqual(x, 0)
-            self.assertLessEqual(x, width)
-            self.assertGreaterEqual(y, 0)
-            self.assertLessEqual(y, height)
-        self.assertLessEqual(layout["labels"]["top"][1], 6)
-        self.assertGreaterEqual(layout["labels"]["bottom"][1], height - 6)
-        self.assertLess(layout["labels"]["top"][1], cy - outer_ring)
-        self.assertGreater(layout["labels"]["bottom"][1], cy + outer_ring)
+        for node in layout["nodes"]:
+            self.assertLess(abs(node["x"] - cx), radius * 1.5)
+            self.assertLess(abs(node["y"] - cy), radius * 1.5)
+
+    def test_neural_sphere_rotates_with_angle(self):
+        from ultron.ui.ui_rendering import build_neural_sphere_layout
+
+        layout_a = build_neural_sphere_layout(520, 330, angle=0, activity=0.5)
+        layout_b = build_neural_sphere_layout(520, 330, angle=90, activity=0.5)
+
+        self.assertNotEqual(
+            [node["x"] for node in layout_a["nodes"]],
+            [node["x"] for node in layout_b["nodes"]],
+        )
 
     def test_main_ui_keeps_assistant_status_without_control_clutter(self):
         content = Path("ultron/ui/arayuz.py").read_text(encoding="utf-8")
