@@ -10,7 +10,7 @@ import requests
 
 from ultron.providers.base import ProviderResponse
 
-DEFAULT_GEMINI_VISION_MODEL = "gemini-2.0-flash"
+DEFAULT_GEMINI_VISION_MODEL = "gemini-3.6-flash"
 _API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 _DEFAULT_PROMPT = (
     "Describe what is visible in this screenshot in two or three concise spoken "
