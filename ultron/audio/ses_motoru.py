@@ -17,6 +17,7 @@ import edge_tts
 import numpy as np
 from edge_tts.exceptions import EdgeTTSException
 
+from ultron.audio.fish_tts import fish_cache_path
 from ultron.runtime.ui_bridge import send_log, send_state
 
 AUDIO_AVAILABLE = False
@@ -151,6 +152,16 @@ async def _synthesize(text: str) -> bytes:
 
 
 async def _get_audio(text: str) -> bytes:
+    # Fish Audio's "Ultron" character voice is pre-generated offline for the
+    # known fixed phrase set (see warm_fish_cache.py) - it costs ~18s per
+    # call so it is never synthesized live here, only read back if cached.
+    fish_cache_file = fish_cache_path(text)
+    if fish_cache_file.exists():
+        try:
+            return fish_cache_file.read_bytes()
+        except OSError:
+            pass
+
     cache_file = _cache_path(text)
     if cache_file.exists():
         try:
