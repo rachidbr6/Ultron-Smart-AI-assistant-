@@ -92,6 +92,10 @@ DIRECT_ACTION_PATTERNS: tuple[tuple[tuple[str, ...], str], ...] = (
     (("ram", "memory usage", "memory status"), "get_ram"),
     (("cpu", "processor usage", "cpu usage"), "get_cpu"),
     (("screenshot", "screen shot", "take screenshot"), "screenshot"),
+    (
+        ("describe my screen", "what's on my screen", "whats on my screen", "look at my screen", "describe screen"),
+        "describe_screen",
+    ),
     (("read clipboard", "clipboard read"), "read_clipboard"),
     (("summarize clipboard", "clipboard summary"), "summarize_clipboard"),
     (("read notes", "list notes"), "read_notes"),

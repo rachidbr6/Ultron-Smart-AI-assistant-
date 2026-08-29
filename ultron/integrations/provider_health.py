@@ -108,7 +108,7 @@ def build_provider_health_checks(
                 "provider_gemini",
                 "Gemini provider",
                 "ok",
-                "Gemini API key is configured for optional future vision flows.",
+                "Gemini API key is configured. \"Describe my screen\" is available.",
                 "No action needed.",
             )
         )
@@ -118,8 +118,8 @@ def build_provider_health_checks(
                 "provider_gemini",
                 "Gemini provider",
                 "info",
-                "Gemini API key is not configured; this is fine unless you enable Gemini-backed vision.",
-                "Add GEMINI_API_KEY only if you need Gemini-backed flows.",
+                "Gemini API key is not configured; screen description is unavailable until set.",
+                "Add GEMINI_API_KEY only if you want \"describe my screen\" support.",
             )
         )
 

@@ -27,11 +27,32 @@ class GroqRouterTests(unittest.TestCase):
         with (
             patch.object(groq_router, "client", None),
             patch.object(groq_router, "GROQ_API_KEY", None),
+            patch.dict("os.environ", {"JARVIS_LOCAL_LLM_URL": ""}),
         ):
             result = groq_router.analyze_with_groq("open chrome", client=None, logger=DummyLogger())
 
         self.assertEqual(result["action"], "talk")
         self.assertIn("Groq API key not found. Running in local-only mode.", result["response"])
+
+    def test_falls_back_to_local_llm_when_groq_missing(self):
+        fake_action = {"action": "open_app", "params": {"app": "chrome"}, "response": "Opening Chrome."}
+        with (
+            patch.object(groq_router, "client", None),
+            patch.object(groq_router, "GROQ_API_KEY", None),
+            patch.object(groq_router, "_try_local_llm", return_value=fake_action) as mock_local,
+        ):
+            result = groq_router.analyze_with_groq("open chrome", client=None, logger=DummyLogger())
+
+        mock_local.assert_called_once()
+        self.assertEqual(result, fake_action)
+
+    def test_local_llm_not_attempted_when_disabled(self):
+        with (
+            patch.object(groq_router, "client", None),
+            patch.object(groq_router, "GROQ_API_KEY", None),
+            patch.dict("os.environ", {"JARVIS_LOCAL_LLM_URL": ""}),
+        ):
+            self.assertIsNone(groq_router._try_local_llm("open chrome", logger=DummyLogger()))
 
     def test_groq_can_be_disabled_by_environment_flag(self):
         with patch.dict("os.environ", {"JARVIS_ENABLE_GROQ": "false"}):

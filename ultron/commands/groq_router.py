@@ -15,6 +15,7 @@ from ultron.providers.groq import (
     extract_action_json,
     is_groq_cooling_down,
 )
+from ultron.providers.ollama import OllamaProvider
 from ultron.security.jarvis_admin import format_actionable_message
 from ultron.utils.jarvis_logging import get_logger
 
@@ -69,6 +70,7 @@ Available actions:
 - "get_ram": {}
 - "get_cpu": {}
 - "screenshot": {}
+- "describe_screen": {"question": "optional specific question about what's on screen"}
 - "read_clipboard": {}
 - "summarize_clipboard": {}
 - "type_text": {"text": "text to type"}
@@ -149,11 +151,30 @@ def _local_only_action() -> dict:
     }
 
 
+def _try_local_llm(command: str, *, logger=logger) -> dict | None:
+    """Fall back to a local Ollama-compatible endpoint if one is configured."""
+
+    provider = OllamaProvider(system_prompt=SYSTEM_PROMPT)
+    if not provider.enabled:
+        return None
+    response = provider.analyze(ProviderRequest(command=command, allow_cloud=True, allow_memory_context=False))
+    if response.ok and response.action is not None:
+        logger.info("Analyzed command with local LLM (%s) in %sms.", provider.model, response.latency_ms)
+        record_runtime_event("local_llm_request", "Analyzed with local LLM", "info", {"latency_ms": response.latency_ms})
+        return response.action
+    logger.warning("Local LLM analysis failed: %s", response.error)
+    record_runtime_event("local_llm_error", "Local LLM analysis failed", "warning", {"error": response.error})
+    return None
+
+
 def analyze_with_groq(command, *, client=None, logger=logger):
     """Analyze a command through the local-first provider router."""
 
     active_client = _resolve_client(client)
     if active_client is None and (not GROQ_API_KEY or not groq_enabled()):
+        local_action = _try_local_llm(command, logger=logger)
+        if local_action is not None:
+            return local_action
         logger.warning("Groq API key not found. Running in local-only mode.")
         record_runtime_event("groq_missing", "Groq analysis skipped", "warning")
         return _missing_groq_action()
@@ -176,6 +197,9 @@ def analyze_with_groq(command, *, client=None, logger=logger):
         return response.action
     if response.error == "rate_limited" and response.action is not None:
         return response.action
+    local_action = _try_local_llm(command, logger=logger)
+    if local_action is not None:
+        return local_action
     return _local_only_action()
 
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime
+import io
 import os
 import time
 import webbrowser
@@ -20,6 +21,7 @@ except ImportError:
 
 from ultron.health.observability import record_runtime_event
 from ultron.integrations.url_safety import build_google_search_url, normalize_web_url
+from ultron.providers.gemini import GeminiProvider
 from ultron.runtime.process_runner import launch_process, run_command
 from ultron.runtime.runtime_safety import block_message, is_destructive_action, is_destructive_action_allowed
 from ultron.security.jarvis_admin import format_actionable_message
@@ -225,6 +227,33 @@ def handle_runtime_action(action: str, params: dict, context: dict) -> bool | No
         screenshot.save(file_path)
         speak("Screenshot saved to your Pictures folder, sir.")
         launch_process(["explorer", f"/select,{file_path}"])
+        return True
+
+    if action == "describe_screen":
+        if not PYAUTOGUI_AVAILABLE:
+            speak("Screen capture is not available on this system, sir.")
+            return False
+        provider = GeminiProvider()
+        if not provider.enabled:
+            speak(
+                format_actionable_message(
+                    "Gemini vision is not configured, sir.",
+                    "GEMINI_API_KEY is not set.",
+                    "Add GEMINI_API_KEY to your .env file to enable screen description.",
+                )
+            )
+            return False
+        screenshot = pyautogui.screenshot()
+        buffer = io.BytesIO()
+        screenshot.save(buffer, format="PNG")
+        response = provider.describe_image(buffer.getvalue(), question=params.get("question", ""))
+        if not response.ok:
+            logger.warning("Gemini vision failed: %s", response.error)
+            record_runtime_event("gemini_vision_error", "Screen description failed", "warning", {"error": response.error})
+            speak("I could not analyze the screen just now, sir.")
+            return False
+        record_runtime_event("gemini_vision", "Screen described", "info", {"latency_ms": response.latency_ms})
+        speak(response.text)
         return True
 
     if action == "read_clipboard":
