@@ -148,6 +148,25 @@ class LocalIntentRouterTests(unittest.TestCase):
         self.assertEqual(result["action"], "add_note")
         self.assertEqual(result["params"], {"text": "run tests tomorrow"})
 
+    def test_routes_power_and_lock_commands_without_llm(self):
+        cases = {
+            "lock my laptop": "lock_screen",
+            "lock the screen": "lock_screen",
+            "shutdown": "shutdown",
+            "shut down my laptop": "shutdown",
+            "turn off my laptop": "shutdown",
+            "restart my laptop": "restart",
+            "reboot": "restart",
+            "go to sleep": "sleep",
+            "put my laptop to sleep": "sleep",
+        }
+
+        for command, action in cases.items():
+            with self.subTest(command=command):
+                result = route_local_intent(command)
+                self.assertIsNotNone(result)
+                self.assertEqual(result["action"], action)
+
     def test_returns_none_for_complex_commands_that_need_llm(self):
         self.assertIsNone(route_local_intent("open YouTube, start lo-fi, and then start focus mode"))
 

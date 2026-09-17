@@ -125,6 +125,30 @@ DIRECT_ACTION_PATTERNS: tuple[tuple[tuple[str, ...], str], ...] = (
         "list_remaining_tasks",
     ),
     (("clean memory", "prune memory", "cleanup memory"), "prune_memory"),
+    (
+        ("lock my laptop", "lock my pc", "lock my computer", "lock the screen", "lock screen", "lock windows"),
+        "lock_screen",
+    ),
+    (
+        (
+            "shutdown",
+            "shut down",
+            "turn off my laptop",
+            "turn off my pc",
+            "turn off my computer",
+            "power off my laptop",
+            "power off my pc",
+        ),
+        "shutdown",
+    ),
+    (
+        ("restart my laptop", "restart my pc", "restart my computer", "restart windows", "reboot"),
+        "restart",
+    ),
+    (
+        ("sleep mode", "go to sleep", "put my laptop to sleep", "put the computer to sleep", "put my pc to sleep"),
+        "sleep",
+    ),
 )
 
 TRAILING_SEARCH_WORDS = (" search",)
