@@ -12,6 +12,36 @@ from difflib import SequenceMatcher
 _TRUE_VALUES = {"1", "true", "yes", "on", "enabled"}
 _FALSE_VALUES = {"0", "false", "no", "off", "disabled"}
 
+# Compact offline STT models often don't have "ultron" in their vocabulary and
+# substitute the closest real word(s) they know. These are known mishearings
+# collected from real usage - baked into the code (rather than left to .env
+# alone) so recall doesn't regress if a user's .env is reset or recreated from
+# .env.example. Anything set in JARVIS_WAKE_WORD_ALIASES is added on top of
+# this list, not a replacement for it.
+DEFAULT_ULTRON_ALIASES: tuple[str, ...] = (
+    "utron",
+    "otron",
+    "oltron",
+    "otro",
+    "ultro",
+    "ultran",
+    "ol tron",
+    "alt ron",
+    "eltron",
+    "il tron",
+    "you tron",
+    "all tron",
+    "hail tron",
+    "old tron",
+    "oh tron",
+    "outrun",
+    "ultra on",
+    "altman",
+    "altering",
+    "altrin",
+    "altran",
+)
+
 
 def parse_bool(value: object, default: bool) -> bool:
     if value is None:
@@ -68,10 +98,11 @@ def build_wake_word_config(env: Mapping[str, str] | None = None) -> dict[str, ob
     except (TypeError, ValueError):
         cooldown_seconds = 1.0
     raw_aliases = source.get("JARVIS_WAKE_WORD_ALIASES", "")
+    built_in_aliases = DEFAULT_ULTRON_ALIASES if wake_word == "ultron" else ()
     aliases = tuple(
         dict.fromkeys(  # dedupe while preserving order
             normalized
-            for part in raw_aliases.split(",")
+            for part in (*built_in_aliases, *raw_aliases.split(","))
             if (normalized := normalize_voice_phrase(part))
         )
     )

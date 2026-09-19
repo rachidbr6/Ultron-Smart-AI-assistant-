@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from ultron.audio.wake_word import (
+    DEFAULT_ULTRON_ALIASES,
     WakeWordDetector,
     build_wake_word_config,
     fuzzy_wake_word_score,
@@ -46,3 +47,24 @@ class WakeWordDetectionTest(TestCase):
     def test_fuzzy_wake_word_score_empty_input_is_zero(self):
         self.assertEqual(fuzzy_wake_word_score("", "ultron"), 0.0)
         self.assertEqual(fuzzy_wake_word_score("ultron", ""), 0.0)
+
+    def test_built_in_ultron_aliases_are_included_by_default(self):
+        config = build_wake_word_config({"JARVIS_WAKE_WORD": "ultron"})
+
+        for alias in ("utron", "oltron", "otro"):
+            with self.subTest(alias=alias):
+                self.assertIn(alias, config["aliases"])
+                self.assertTrue(wake_word_detected(alias, config=config))
+
+    def test_env_aliases_are_added_on_top_of_the_built_in_ultron_list(self):
+        config = build_wake_word_config({"JARVIS_WAKE_WORD": "ultron", "JARVIS_WAKE_WORD_ALIASES": "buddy"})
+
+        self.assertIn("buddy", config["aliases"])
+        for alias in DEFAULT_ULTRON_ALIASES:
+            with self.subTest(alias=alias):
+                self.assertIn(alias, config["aliases"])
+
+    def test_built_in_aliases_do_not_apply_to_other_wake_words(self):
+        config = build_wake_word_config({"JARVIS_WAKE_WORD": "jarvis"})
+
+        self.assertFalse(wake_word_detected("oltron", config=config))
