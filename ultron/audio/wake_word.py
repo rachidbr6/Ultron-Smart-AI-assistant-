@@ -42,6 +42,13 @@ DEFAULT_ULTRON_ALIASES: tuple[str, ...] = (
     "altran",
 )
 
+# Deliberate alternate names (not mishearings) that should also wake Ultron.
+# "Jarvis" is the assistant name the user still says out of habit; kept
+# distinct from DEFAULT_ULTRON_ALIASES so callers can tell "the user meant to
+# say a different assistant name" apart from "the STT model mangled ultron"
+# and answer accordingly (see wake_listener.py's greeting choice).
+ALTERNATE_ULTRON_NAMES: tuple[str, ...] = ("jarvis",)
+
 
 def parse_bool(value: object, default: bool) -> bool:
     if value is None:
@@ -98,7 +105,7 @@ def build_wake_word_config(env: Mapping[str, str] | None = None) -> dict[str, ob
     except (TypeError, ValueError):
         cooldown_seconds = 1.0
     raw_aliases = source.get("JARVIS_WAKE_WORD_ALIASES", "")
-    built_in_aliases = DEFAULT_ULTRON_ALIASES if wake_word == "ultron" else ()
+    built_in_aliases = (*DEFAULT_ULTRON_ALIASES, *ALTERNATE_ULTRON_NAMES) if wake_word == "ultron" else ()
     aliases = tuple(
         dict.fromkeys(  # dedupe while preserving order
             normalized

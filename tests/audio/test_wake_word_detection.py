@@ -1,8 +1,10 @@
 from unittest import TestCase
 
 from ultron.audio.wake_word import (
+    ALTERNATE_ULTRON_NAMES,
     DEFAULT_ULTRON_ALIASES,
     WakeWordDetector,
+    analyze_wake_word,
     build_wake_word_config,
     fuzzy_wake_word_score,
     normalize_voice_phrase,
@@ -68,3 +70,12 @@ class WakeWordDetectionTest(TestCase):
         config = build_wake_word_config({"JARVIS_WAKE_WORD": "jarvis"})
 
         self.assertFalse(wake_word_detected("oltron", config=config))
+
+    def test_jarvis_also_wakes_ultron_and_is_reported_as_the_matched_phrase(self):
+        config = build_wake_word_config({"JARVIS_WAKE_WORD": "ultron"})
+
+        self.assertEqual(ALTERNATE_ULTRON_NAMES, ("jarvis",))
+        self.assertIn("jarvis", config["aliases"])
+        result = analyze_wake_word("hey jarvis", config=config)
+        self.assertTrue(result["detected"])
+        self.assertEqual(result["matched_phrase"], "jarvis")

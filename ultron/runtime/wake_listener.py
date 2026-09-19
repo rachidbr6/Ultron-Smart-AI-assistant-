@@ -10,12 +10,18 @@ import numpy as np
 import speech_recognition as sr
 
 from ultron.audio.speech_backend import recognition_mode, transcribe_audio, SounddeviceMicrophone
-from ultron.audio.wake_word import build_wake_word_config, fuzzy_wake_word_score, wake_word_detected
+from ultron.audio.wake_word import ALTERNATE_ULTRON_NAMES, analyze_wake_word, build_wake_word_config, fuzzy_wake_word_score
 from ultron.health.observability import record_runtime_event
 
 WAKE_WORD_CONFIG = build_wake_word_config()
 WAKE_WORD = str(WAKE_WORD_CONFIG["wake_word"])
 ACTIVE_TIMEOUT = int(os.getenv("JARVIS_ACTIVE_TIMEOUT", "60"))
+
+# Said instead of the normal greeting when the user actually said one of the
+# alternate names (e.g. "Jarvis") rather than "Ultron" itself, so the
+# assistant still answers but is clear about its actual name.
+ALTERNATE_NAME_GREETING = "My name is Ultron. How can I help you, boss?"
+DEFAULT_GREETING = "At your service, sir."
 
 _wake_recognizer = sr.Recognizer()
 _wake_recognizer.energy_threshold = int(os.getenv("JARVIS_ENERGY_THRESHOLD", "200"))
@@ -47,7 +53,7 @@ def _update_mic_level(audio: sr.AudioData) -> float:
     return level
 
 
-def _online_confirmation_matches(online_text: str) -> bool:
+def _online_confirmation_match(online_text: str) -> str | None:
     """Decide whether an online-recognizer confirmation counts as the wake word.
 
     Only called after the offline fuzzy pre-filter already gated entry into
@@ -56,11 +62,24 @@ def _online_confirmation_matches(online_text: str) -> bool:
     recognizer clipping the trailing "n" and returning bare "Ultra" for a
     genuine "Ultron". "ultra" is not a general offline alias (too common a
     standalone word for that), but it is accepted here specifically.
+
+    Returns the matched phrase (for greeting selection) or None.
     """
 
-    if wake_word_detected(online_text, config=WAKE_WORD_CONFIG):
-        return True
-    return "ultra" in online_text.lower().split()
+    analysis = analyze_wake_word(online_text, config=WAKE_WORD_CONFIG)
+    if analysis["detected"]:
+        return str(analysis["matched_phrase"])
+    if "ultra" in online_text.lower().split():
+        return "ultra"
+    return None
+
+
+def _greeting_for(matched_phrase: str | None) -> str:
+    """Pick the spoken greeting based on which phrase actually triggered the wake."""
+
+    if matched_phrase in ALTERNATE_ULTRON_NAMES:
+        return ALTERNATE_NAME_GREETING
+    return DEFAULT_GREETING
 
 
 def get_mic_level(max_age: float = 1.5) -> float:
@@ -115,11 +134,14 @@ def listen_for_wake_word(*, logger, send_log, speak=None) -> None:
                 level = _update_mic_level(audio)
                 text = transcribe_audio(_wake_recognizer, audio, language="en-US", prefer_offline=True)
                 triggered = False
+                matched_phrase = None
                 logger.info(f"Captured audio: level={level:.2f} recognized={text!r}")
                 if text:
                     score = fuzzy_wake_word_score(text, WAKE_WORD)
-                    if wake_word_detected(text, config=WAKE_WORD_CONFIG):
+                    analysis = analyze_wake_word(text, config=WAKE_WORD_CONFIG)
+                    if analysis["detected"]:
                         triggered = True
+                        matched_phrase = str(analysis["matched_phrase"])
                     elif score >= 0.32:
                         # The compact offline model may not know an unusual
                         # wake word and substitutes the closest real word it
@@ -134,7 +156,8 @@ def listen_for_wake_word(*, logger, send_log, speak=None) -> None:
                             online_text = ""
                         logger.info(f"Online confirmation heard: {online_text!r}")
                         if online_text:
-                            triggered = _online_confirmation_matches(online_text)
+                            matched_phrase = _online_confirmation_match(online_text)
+                            triggered = matched_phrase is not None
                 if triggered:
                     print("\n🟢 Wake word detected!")
                     send_log("WAKE WORD DETECTED")
@@ -143,7 +166,7 @@ def listen_for_wake_word(*, logger, send_log, speak=None) -> None:
                         # Speak fully before marking active, so the main
                         # loop never opens the command microphone while
                         # this thread's speaker output is still playing.
-                        speak("At your service, sir.")
+                        speak(_greeting_for(matched_phrase))
                     active = True
                     error_count = 0
             
