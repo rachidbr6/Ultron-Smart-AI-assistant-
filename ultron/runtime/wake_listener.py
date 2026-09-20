@@ -24,7 +24,11 @@ ALTERNATE_NAME_GREETING = "My name is Ultron. How can I help you, boss?"
 DEFAULT_GREETING = "At your service, sir."
 
 _wake_recognizer = sr.Recognizer()
-_wake_recognizer.energy_threshold = int(os.getenv("JARVIS_ENERGY_THRESHOLD", "200"))
+# Lower than speech_recognition's own default (300) - real usage showed the
+# old value of 200 still needed a raised voice to register on typical laptop
+# mics. 150 catches normal speaking volume without picking up much more
+# ambient room noise.
+_wake_recognizer.energy_threshold = int(os.getenv("JARVIS_ENERGY_THRESHOLD", "150"))
 _wake_recognizer.dynamic_energy_threshold = False  # Disable for better performance
 _wake_recognizer.pause_threshold = 0.5  # Shorter pause detection for better responsiveness
 
