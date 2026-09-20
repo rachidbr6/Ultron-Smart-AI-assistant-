@@ -30,7 +30,12 @@ _wake_recognizer = sr.Recognizer()
 # ambient room noise.
 _wake_recognizer.energy_threshold = int(os.getenv("JARVIS_ENERGY_THRESHOLD", "150"))
 _wake_recognizer.dynamic_energy_threshold = False  # Disable for better performance
-_wake_recognizer.pause_threshold = 0.5  # Shorter pause detection for better responsiveness
+# Shorter pause detection for better responsiveness than the full command
+# listener's default (1.0) - a wake word is a single short utterance, not a
+# sentence with natural mid-phrase pauses. Configurable like the command
+# listener's, instead of a silent hardcoded value, so both stay tunable from
+# the same setting.
+_wake_recognizer.pause_threshold = float(os.getenv("JARVIS_PAUSE_THRESHOLD", "0.5"))
 
 active = False
 
