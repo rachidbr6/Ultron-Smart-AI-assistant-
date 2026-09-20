@@ -12,7 +12,9 @@ from ultron.runtime.ui_bridge import send_state
 from ultron.security.jarvis_admin import format_actionable_message
 
 _cmd_recognizer = sr.Recognizer()
-_cmd_recognizer.energy_threshold = int(os.getenv("JARVIS_ENERGY_THRESHOLD", "300"))
+# Match the wake-word listener's default so a command isn't harder to hear
+# than the wake word that opened this listening window.
+_cmd_recognizer.energy_threshold = int(os.getenv("JARVIS_ENERGY_THRESHOLD", "150"))
 _cmd_recognizer.dynamic_energy_threshold = False
 _cmd_recognizer.pause_threshold = float(os.getenv("JARVIS_PAUSE_THRESHOLD", "1.0"))
 
