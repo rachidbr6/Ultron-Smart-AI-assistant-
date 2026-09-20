@@ -6,6 +6,11 @@ The format follows Keep a Changelog, and this project uses semantic versioning f
 
 ## Unreleased
 
+### Changed
+
+- Lowered and aligned the wake-word and command listeners' default microphone energy threshold (300/200 → 150) so normal speaking volume registers without needing to raise your voice.
+- Made the wake listener's pause threshold configurable via `JARVIS_PAUSE_THRESHOLD` instead of a hardcoded value, matching the command listener.
+
 ## v1.0.0 - Stable Release
 
 ### Added

@@ -62,7 +62,7 @@ FIELD_DEFINITIONS: dict[str, FieldDefinition] = {
     ),
     "voice.push_to_talk_enabled": FieldDefinition("voice.push_to_talk_enabled", "bool", True, env_var="JARVIS_PUSH_TO_TALK_ENABLED"),
     "voice.active_timeout": FieldDefinition("voice.active_timeout", "int", 60, env_var="JARVIS_ACTIVE_TIMEOUT", minimum=1, maximum=3600),
-    "voice.energy_threshold": FieldDefinition("voice.energy_threshold", "int", 300, env_var="JARVIS_ENERGY_THRESHOLD", minimum=1, maximum=10000),
+    "voice.energy_threshold": FieldDefinition("voice.energy_threshold", "int", 150, env_var="JARVIS_ENERGY_THRESHOLD", minimum=1, maximum=10000),
     "voice.pause_threshold": FieldDefinition("voice.pause_threshold", "float", 1.0, env_var="JARVIS_PAUSE_THRESHOLD", minimum=0.1, maximum=10.0),
     "voice.tts_enabled": FieldDefinition("voice.tts_enabled", "bool", True, env_var="JARVIS_TTS_ENABLED"),
     "voice.tts_provider": FieldDefinition("voice.tts_provider", "string", "edge", env_var="JARVIS_TTS_PROVIDER", allowed_values=("edge", "piper", "elevenlabs")),
