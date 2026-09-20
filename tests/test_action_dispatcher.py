@@ -333,12 +333,50 @@ class ActionDispatcherTest(unittest.TestCase):
         with (
             patch("ultron.commands.domains.runtime_actions.os.path.exists", return_value=False),
             patch("ultron.commands.domains.runtime_actions.launch_process", side_effect=OSError("missing")),
+            patch("ultron.commands.domains.runtime_actions.launch_via_windows_search", return_value=False) as search_mock,
         ):
             result = handle_runtime_action("open_app", {"app": "missing_app"}, context)
 
         self.assertTrue(result)
         self.assertIn("couldn't locate", spoken[0])
+        search_mock.assert_called_once_with("missing_app", logger=logger)
         self.assertEqual(handle_runtime_action("unknown_action", {}, context), None)
+
+    def test_runtime_handler_launch_app_falls_back_to_windows_search(self):
+        context = {"speak": lambda text: None, "logger": DummyLogger()}
+
+        with (
+            patch("ultron.commands.domains.runtime_actions.os.path.exists", return_value=False),
+            patch("ultron.commands.domains.runtime_actions.launch_process", side_effect=OSError("missing")),
+            patch("ultron.commands.domains.runtime_actions.launch_via_windows_search", return_value=True) as search_mock,
+            patch("ultron.commands.domains.runtime_actions.record_runtime_event") as event_mock,
+        ):
+            result = handle_runtime_action("open_app", {"app": "obscure tool"}, context)
+
+        self.assertTrue(result)
+        search_mock.assert_called_once()
+        event_mock.assert_called_once()
+        self.assertEqual(event_mock.call_args[0][3]["path"], "windows_search")
+
+    def test_launch_via_windows_search_drives_pyautogui_and_reports_failure(self):
+        from ultron.commands.domains import runtime_actions
+
+        logger = DummyLogger()
+
+        with (
+            patch.object(runtime_actions, "PYAUTOGUI_AVAILABLE", True),
+            patch.object(runtime_actions, "pyautogui") as pyautogui_mock,
+            patch("ultron.commands.domains.runtime_actions.time.sleep"),
+        ):
+            result = runtime_actions.launch_via_windows_search("notepad", logger=logger)
+
+        self.assertTrue(result)
+        pyautogui_mock.press.assert_any_call("win")
+        pyautogui_mock.typewrite.assert_called_once_with("notepad", interval=0.03)
+        pyautogui_mock.press.assert_any_call("enter")
+
+        with patch.object(runtime_actions, "PYAUTOGUI_AVAILABLE", False):
+            self.assertFalse(runtime_actions.launch_via_windows_search("notepad", logger=logger))
 
     def test_runtime_handler_power_actions_when_explicitly_allowed(self):
         context = {"speak": lambda text: None, "logger": DummyLogger()}

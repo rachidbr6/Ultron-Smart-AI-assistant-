@@ -110,8 +110,32 @@ def summarize_text_locally(text: str, sentence_limit: int = LOCAL_SUMMARY_SENTEN
     return summary + ("." if not summary.endswith(".") else "")
 
 
+def launch_via_windows_search(app_name: str, *, logger) -> bool:
+    """Fall back to Windows' own Start-menu search for an app we couldn't
+    resolve to a known or PATH executable: type the name and press Enter,
+    which opens Windows' own top/best match. Enter is used instead of
+    clicking a screen coordinate for "the first result" because that
+    coordinate isn't stable across resolutions, DPI scaling, or Windows
+    versions - Enter is the keyboard equivalent and always hits the same
+    result Windows itself would open first.
+    """
+
+    if not PYAUTOGUI_AVAILABLE:
+        return False
+    try:
+        pyautogui.press("win")
+        time.sleep(desktop_action_delay("JARVIS_APP_SEARCH_OPEN_DELAY", 0.5))
+        pyautogui.typewrite(app_name, interval=0.03)
+        time.sleep(desktop_action_delay("JARVIS_APP_SEARCH_RESULTS_DELAY", 0.8))
+        pyautogui.press("enter")
+        return True
+    except Exception as exc:  # noqa: BLE001 - best-effort UI automation fallback
+        logger.exception("Windows Search fallback failed for %s: %s", app_name, exc)
+        return False
+
+
 def launch_app(app_name: str, *, speak, logger) -> bool:
-    """Find and launch an application."""
+    """Find and launch an application, falling back to Windows Search."""
 
     paths = APPLICATIONS.get(app_name.lower(), [app_name])
     for path in paths:
@@ -119,21 +143,27 @@ def launch_app(app_name: str, *, speak, logger) -> bool:
             launch_process([path])
             record_runtime_event("app_launch", f"launched {app_name}", "info", {"path": path})
             return True
+
     try:
         launch_process([app_name])
         record_runtime_event("app_launch", f"launched {app_name}", "info", {"path": app_name})
         return True
     except OSError as exc:
-        logger.exception("Failed to launch app %s: %s", app_name, exc)
-        record_runtime_event("app_launch_error", f"failed {app_name}", "warning", {"error": str(exc)})
-        speak(
-            format_actionable_message(
-                f"I couldn't locate {app_name}, sir.",
-                "The executable path was not found or Windows blocked the launch.",
-                "Install the app, or provide the full executable path in APPLICATIONS.",
-            )
+        logger.info("No direct path or PATH executable for %s (%s); trying Windows Search.", app_name, exc)
+
+    if launch_via_windows_search(app_name, logger=logger):
+        record_runtime_event("app_launch", f"launched {app_name} via Windows Search", "info", {"path": "windows_search"})
+        return True
+
+    record_runtime_event("app_launch_error", f"failed {app_name}", "warning", {"error": "not found"})
+    speak(
+        format_actionable_message(
+            f"I couldn't locate {app_name}, sir.",
+            "The executable path was not found, and Windows Search didn't find a match either.",
+            "Install the app, or provide the full executable path in APPLICATIONS.",
         )
-        return False
+    )
+    return False
 
 
 def handle_runtime_action(action: str, params: dict, context: dict) -> bool | None:
